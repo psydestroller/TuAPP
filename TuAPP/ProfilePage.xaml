@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TuAPP.ProfilePage" BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ScrollView Padding="20">
+        <VerticalStackLayout Spacing="20">
+            <Label Text="Perfil" FontSize="26" FontAttributes="Bold" TextColor="White"/>
+
+            <Border Padding="20">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Border WidthRequest="70" HeightRequest="70" BackgroundColor="#27272A" HorizontalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="35"/>
+                        </Border.StrokeShape>
+                        <Label x:Name="LblInitials" Text="JD" TextColor="White" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Label x:Name="LblName" Text="Juan Deportista" FontSize="20" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                    <Label x:Name="LblCatTop" Text="Categoría: Ligero" FontSize="14" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Grid ColumnDefinitions="*, *" RowDefinitions="*, *" RowSpacing="15" ColumnSpacing="15">
+                <Border Grid.Row="0" Grid.Column="0" Padding="15">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label x:Name="LblAge" Text="25" FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                        <Label Text="Edad" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1" Padding="15">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label x:Name="LblWeight" Text="70 kg" FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                        <Label Text="Peso actual" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="0" Padding="15">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label x:Name="LblHeight" Text="175 cm" FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                        <Label Text="Altura" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="1" Padding="15">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label x:Name="LblImc" Text="22.9" FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                        <Label Text="IMC" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <Border Padding="15">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="15">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Control de peso" TextColor="White" VerticalOptions="Center"/>
+                        <Button Grid.Column="1" Text="+ Pesar" BackgroundColor="Transparent" BorderColor="#3F3F46" BorderWidth="1" TextColor="White" HeightRequest="35" CornerRadius="6" Padding="10,0" Clicked="OnToggleWeight"/>
+                    </Grid>
+                    <VerticalStackLayout x:Name="FormWeight" IsVisible="False" Spacing="10">
+                        <Label Text="Registrar peso" FontSize="16" FontAttributes="Bold" TextColor="White"/>
+                        <Label Text="Peso (kg)" TextColor="{StaticResource SubtitleColor}"/>
+                        <Entry x:Name="EntryNewWeight" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
+                        <Button Text="Guardar" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" Clicked="OnSaveWeight"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="✏️ Editar perfil" BackgroundColor="Transparent" BorderColor="#3F3F46" BorderWidth="1" TextColor="White" CornerRadius="8" HeightRequest="45" Clicked="OnToggleEdit"/>
+
+            <Border x:Name="FormEdit" IsVisible="False" Padding="15" BackgroundColor="#18181B">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Editar perfil" FontSize="18" FontAttributes="Bold" TextColor="White"/>
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Nombre" TextColor="{StaticResource SubtitleColor}"/>
+                        <Entry x:Name="EntryName" BackgroundColor="#27272A" TextColor="White"/>
+                    </VerticalStackLayout>
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Edad" TextColor="{StaticResource SubtitleColor}"/>
+                            <Entry x:Name="EntryAge" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="5">
+                            <Label Text="Altura (cm)" TextColor="{StaticResource SubtitleColor}"/>
+                            <Entry x:Name="EntryHeight" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                    <Button Text="Guardar perfil" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="8" Clicked="OnSaveProfile"/>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

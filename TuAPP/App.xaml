@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:TuAPP"
+             x:Class="TuAPP.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="BackgroundColor">#09090B</Color>
+            <Color x:Key="CardBackground">#18181B</Color>
+            <Color x:Key="TextColor">#FFFFFF</Color>
+            <Color x:Key="SubtitleColor">#A1A1AA</Color>
+
+            <Color x:Key="WorkColor">#10B981</Color>
+            <Color x:Key="RestColor">#EF4444</Color>
+            <Color x:Key="PrepColor">#EAB308</Color>
+            <Color x:Key="AccentColor">#06B6D4</Color>
+            <Style TargetType="Label">
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TuAPP.SettingsPage" BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ScrollView Padding="20">
+        <VerticalStackLayout Spacing="25">
+            <Label Text="Ajustes" FontSize="26" FontAttributes="Bold" TextColor="White"/>
+
+            <Label Text="CONFIGURACIÓN DEL PERFIL (BOXEO CLÁSICO)" FontSize="12" TextColor="{StaticResource AccentColor}" FontAttributes="Bold"/>
+            <Border Padding="15">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="15">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Cantidad de rondas" TextColor="White" VerticalOptions="Center"/>
+                        <Picker x:Name="PckRounds" Grid.Column="1" WidthRequest="70" TextColor="White" TitleColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" SelectedIndexChanged="OnSettingsChanged"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" Color="#27272A"/>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Tiempo de la ronda" TextColor="White" VerticalOptions="Center"/>
+                        <HorizontalStackLayout Grid.Column="1" Spacing="5">
+                            <Picker x:Name="PckWorkMin" WidthRequest="60" TextColor="White" TitleColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" SelectedIndexChanged="OnSettingsChanged"/>
+                            <Label Text=":" VerticalOptions="Center" TextColor="White"/>
+                            <Picker x:Name="PckWorkSec" WidthRequest="60" TextColor="White" TitleColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" SelectedIndexChanged="OnSettingsChanged"/>
+                        </HorizontalStackLayout>
+                    </Grid>
+                    <BoxView HeightRequest="1" Color="#27272A"/>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Tiempo del descanso" TextColor="White" VerticalOptions="Center"/>
+                        <HorizontalStackLayout Grid.Column="1" Spacing="5">
+                            <Picker x:Name="PckRestMin" WidthRequest="60" TextColor="White" TitleColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" SelectedIndexChanged="OnSettingsChanged"/>
+                            <Label Text=":" VerticalOptions="Center" TextColor="White"/>
+                            <Picker x:Name="PckRestSec" WidthRequest="60" TextColor="White" TitleColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" SelectedIndexChanged="OnSettingsChanged"/>
+                        </HorizontalStackLayout>
+                    </Grid>
+                    <BoxView HeightRequest="1" Color="#27272A"/>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Tiempo de preparación" TextColor="White" VerticalOptions="Center"/>
+                        <HorizontalStackLayout Grid.Column="1" Spacing="5">
+                            <Picker x:Name="PckPrepMin" WidthRequest="60" TextColor="White" TitleColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" SelectedIndexChanged="OnSettingsChanged"/>
+                            <Label Text=":" VerticalOptions="Center" TextColor="White"/>
+                            <Picker x:Name="PckPrepSec" WidthRequest="60" TextColor="White" TitleColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" SelectedIndexChanged="OnSettingsChanged"/>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="SONIDO Y VIBRACIÓN" FontSize="12" TextColor="{StaticResource AccentColor}" FontAttributes="Bold"/>
+            <Border Padding="15">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="15">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Campana al inicio/fin" TextColor="White" VerticalOptions="Center"/>
+                        <Switch x:Name="SwSound" Grid.Column="1" OnColor="{StaticResource WorkColor}" Toggled="OnTogglesChanged"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" Color="#27272A"/>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Vibración" TextColor="White" VerticalOptions="Center"/>
+                        <Switch x:Name="SwVib" Grid.Column="1" OnColor="{StaticResource WorkColor}" Toggled="OnTogglesChanged"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="PANTALLA" FontSize="12" TextColor="{StaticResource AccentColor}" FontAttributes="Bold"/>
+            <Border Padding="15">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="*, Auto">
+                    <VerticalStackLayout>
+                        <Label Text="Mantener pantalla encendida" TextColor="White" FontAttributes="Bold"/>
+                        <Label Text="Activo durante entrenamientos" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
+                    </VerticalStackLayout>
+                    <Switch x:Name="SwScreen" Grid.Column="1" OnColor="{StaticResource WorkColor}" Toggled="OnTogglesChanged"/>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

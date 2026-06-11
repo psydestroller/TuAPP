@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TuAPP.IMCpage" BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ScrollView Padding="20">
+        <VerticalStackLayout Spacing="20">
+            <VerticalStackLayout Spacing="0">
+                <Label Text="Calculadora IMC" FontSize="24" FontAttributes="Bold" TextColor="White"/>
+                <Label Text="Categoría de peso boxístico" FontSize="14" TextColor="{StaticResource SubtitleColor}"/>
+            </VerticalStackLayout>
+
+            <Border Padding="20">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="15">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Peso" TextColor="{StaticResource SubtitleColor}"/>
+                        <Label x:Name="LblPesoVal" Text="70 kg" TextColor="White"/>
+                    </Grid>
+                    <Slider x:Name="SldPeso" Minimum="40" Maximum="130" Value="70" MinimumTrackColor="White" ValueChanged="OnSliderChanged"/>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Altura" TextColor="{StaticResource SubtitleColor}"/>
+                        <Label x:Name="LblAlturaVal" Text="175 cm" TextColor="White"/>
+                    </Grid>
+                    <Slider x:Name="SldAltura" Minimum="140" Maximum="210" Value="175" MinimumTrackColor="White" ValueChanged="OnSliderChanged"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Padding="20">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Label x:Name="LblIMCResult" Text="22.9" FontSize="48" FontAttributes="Bold" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
+                    <Label x:Name="LblIMCStatus" Text="Peso normal" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+
+                    <Border HeightRequest="12" Margin="0,10" WidthRequest="260">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="6"/>
+                        </Border.StrokeShape>
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#0EA5E9" Offset="0.0" />
+                                <GradientStop Color="#10B981" Offset="0.4" />
+                                <GradientStop Color="#EAB308" Offset="0.7" />
+                                <GradientStop Color="#EF4444" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*,*,*" Margin="0,0,0,10">
+                        <Label Text="Bajo" FontSize="10" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Start"/>
+                        <Label Grid.Column="1" Text="Normal" FontSize="10" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                        <Label Grid.Column="2" Text="Sobrepeso" FontSize="10" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                        <Label Grid.Column="3" Text="Obeso" FontSize="10" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="End"/>
+                    </Grid>
+
+                    <Border BackgroundColor="#27272A" Padding="15,10">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8"/>
+                        </Border.StrokeShape>
+                        <VerticalStackLayout>
+                            <Label Text="Categoría boxística" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                            <Label x:Name="LblBoxCategory" Text="Ligero (67-70 kg)" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Padding="20" Margin="0,0,0,20">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="CATEGORÍAS DE PESO" FontSize="12" TextColor="{StaticResource SubtitleColor}" FontAttributes="Bold"/>
+                    <CollectionView x:Name="ListCategories">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*, Auto, Auto" Padding="0,10">
+                                    <Label Text="{Binding Name}" TextColor="{Binding TextColor}"/>
+                                    <Label Grid.Column="1" Text="{Binding Range}" TextColor="{Binding TextColor}" Margin="0,0,10,0"/>
+                                    <Border Grid.Column="2" IsVisible="{Binding IsUser}" BackgroundColor="#064E3B" Padding="8,2">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="6"/>
+                                        </Border.StrokeShape>
+                                        <Label Text="Tú" TextColor="{StaticResource WorkColor}" FontSize="10" FontAttributes="Bold" VerticalOptions="Center"/>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:TuAPP"
+             x:Class="TuAPP.BoxingTimerPage"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <Grid RowDefinitions="Auto, *, Auto" Padding="20,40,20,30">
+        <VerticalStackLayout Grid.Row="0" Spacing="15">
+            <Label Text="Classic boxing 🥊" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="White"/>
+            <Grid ColumnDefinitions="*, *" HorizontalOptions="Center" ColumnSpacing="40">
+                <VerticalStackLayout HorizontalOptions="Center">
+                    <Label Text="Ejercicio" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                    <Label x:Name="LblHeaderWork" Text="03:00" FontSize="16" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+                    <Label Text="Descanso" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                    <Label x:Name="LblHeaderRest" Text="00:30" FontSize="16" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Grid>
+        </VerticalStackLayout>
+
+        <Grid Grid.Row="1" WidthRequest="300" HeightRequest="300" HorizontalOptions="Center" VerticalOptions="Center">
+            <GraphicsView x:Name="TimerGraphicsView" WidthRequest="300" HeightRequest="300">
+                <GraphicsView.Drawable>
+                    <local:CircularProgressDrawable x:Name="TimerDrawable" />
+                </GraphicsView.Drawable>
+            </GraphicsView>
+            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="-5">
+                <Label x:Name="LblStatusTop" Text="LISTO" FontSize="14" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                <Label x:Name="LblTimer" Text="00:00" FontSize="85" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" Margin="0,-5,0,-5"/>
+                <Label x:Name="LblRound" Text="Ronda 1/12" FontSize="16" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" Spacing="25">
+            <Button Text="↺" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="{StaticResource CardBackground}" TextColor="White" FontSize="20" Clicked="OnResetClicked"/>
+            <Button x:Name="BtnPlayPause" Text="▶" WidthRequest="80" HeightRequest="80" CornerRadius="40" BackgroundColor="{StaticResource CardBackground}" TextColor="White" FontSize="28" Clicked="OnPlayPauseClicked"/>
+            <Button Text="⏭" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="{StaticResource CardBackground}" TextColor="White" FontSize="20" Clicked="OnSkipClicked"/>
+        </HorizontalStackLayout>
+    </Grid>
+</ContentPage>
