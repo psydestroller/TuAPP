@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TuAPP.WorkoutSummaryPage" BackgroundColor="#09090B">
+
+    <Grid RowDefinitions="*, Auto" Padding="20">
+        <VerticalStackLayout VerticalOptions="Center" Spacing="20">
+            <Label Text="¡Entrenamiento Completado!" FontSize="22" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+
+            <Border BackgroundColor="#18181B" Padding="25" StrokeShape="RoundRectangle 16">
+                <VerticalStackLayout Spacing="15">
+                    <Label x:Name="LblType" Text="🥊 Boxeo Clásico" FontSize="20" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+
+                    <Grid ColumnDefinitions="*, *, *" RowDefinitions="Auto, Auto" Margin="0,15">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Rounds" FontSize="12" TextColor="#A1A1AA" HorizontalOptions="Center"/>
+                        <Label Grid.Row="1" Grid.Column="0" x:Name="LblRounds" Text="12" FontSize="28" FontAttributes="Bold" TextColor="#10B981" HorizontalOptions="Center"/>
+
+                        <Label Grid.Row="0" Grid.Column="1" Text="Tiempo" FontSize="12" TextColor="#A1A1AA" HorizontalOptions="Center"/>
+                        <Label Grid.Row="1" Grid.Column="1" x:Name="LblTime" Text="36m" FontSize="28" FontAttributes="Bold" TextColor="#EAB308" HorizontalOptions="Center"/>
+
+                        <Label Grid.Row="0" Grid.Column="2" Text="Calorías" FontSize="12" TextColor="#A1A1AA" HorizontalOptions="Center"/>
+                        <Label Grid.Row="1" Grid.Column="2" x:Name="LblCals" Text="450" FontSize="28" FontAttributes="Bold" TextColor="#EF4444" HorizontalOptions="Center"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="#27272A"/>
+                    <Label x:Name="LblAthlete" Text="Pedro · Categoría Ligero" FontSize="12" TextColor="#06B6D4" HorizontalOptions="Center" FontAttributes="Bold"/>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="1" Spacing="15">
+            <Button Text="Compartir en Redes ↗️" BackgroundColor="#10B981" TextColor="Black" FontAttributes="Bold" CornerRadius="10" HeightRequest="50" Clicked="OnShareClicked"/>
+            <Button Text="Volver al Dashboard" BackgroundColor="Transparent" TextColor="#A1A1AA" Clicked="OnCloseClicked"/>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

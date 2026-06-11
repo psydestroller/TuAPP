@@ -1,140 +1,38 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TuAPP.DashboardPage" BackgroundColor="{StaticResource BackgroundColor}">
-
+             x:Class="TuAPP.DashboardPage">
     <ScrollView Padding="20">
         <VerticalStackLayout Spacing="20">
+            <Button Text="⚙️ Metas" Clicked="OnEditGoalsClicked" WidthRequest="100"/>
 
-            <Grid ColumnDefinitions="*, Auto">
-                <Label Text="Dashboard" FontSize="26" FontAttributes="Bold" TextColor="White" VerticalOptions="Center"/>
-                <Button Grid.Column="1" Text="⚙️ Metas" BackgroundColor="Transparent" BorderColor="#3F3F46" BorderWidth="1" TextColor="White" CornerRadius="8" HeightRequest="40" Padding="15,0" Clicked="OnEditGoalsClicked"/>
-            </Grid>
-
-            <Border x:Name="FormEditGoals" IsVisible="False" Padding="15" BackgroundColor="#1A1A1A">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
-                </Border.StrokeShape>
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Ajustar Metas" FontSize="16" FontAttributes="Bold" TextColor="White"/>
-                    <VerticalStackLayout Spacing="5">
-                        <Label Text="Fecha de la Pelea" TextColor="{StaticResource SubtitleColor}"/>
-                        <DatePicker x:Name="DpFightDate" BackgroundColor="#27272A" TextColor="White"/>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Spacing="5">
-                        <Label Text="Límite de Categoría (kg)" TextColor="{StaticResource SubtitleColor}"/>
-                        <Entry x:Name="EntryTargetWeight" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
-                    </VerticalStackLayout>
-                    <Button Text="Guardar Metas" BackgroundColor="{StaticResource WorkColor}" TextColor="Black" FontAttributes="Bold" CornerRadius="8" Clicked="OnSaveGoalsClicked"/>
+            <Border StrokeShape="RoundRectangle 12" Padding="15" BackgroundColor="#1A1A1A" IsVisible="False" x:Name="FormEditGoals">
+                <VerticalStackLayout Spacing="10">
+                    <DatePicker x:Name="DpFightDate"/>
+                    <Entry x:Name="EntryTargetWeight" Keyboard="Numeric"/>
+                    <Button Text="Guardar" Clicked="OnSaveGoalsClicked"/>
                 </VerticalStackLayout>
             </Border>
 
-            <Border Padding="20" BackgroundColor="{StaticResource CardBackground}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
-                </Border.StrokeShape>
-                <VerticalStackLayout HorizontalOptions="Center" Spacing="5">
-                    <Label Text="PRÓXIMA PELEA" FontSize="12" TextColor="{StaticResource PrepColor}" FontAttributes="Bold" HorizontalOptions="Center"/>
-                    <Label x:Name="LblFightDateDisplay" Text="26 de Julio, 2026" FontSize="20" TextColor="White" FontAttributes="Bold" HorizontalOptions="Center"/>
-                    <Label x:Name="LblCountdown" Text="-- Días" FontSize="42" TextColor="{StaticResource WorkColor}" FontAttributes="Bold" HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-            </Border>
+            <Label x:Name="LblFightDateDisplay" TextColor="White"/>
+            <Label x:Name="LblCountdown" TextColor="Yellow"/>
+            <Label x:Name="LblCurrentWeight" TextColor="White"/>
+            <Label x:Name="LblTargetWeight" TextColor="Green"/>
 
-            <Border Padding="15" BackgroundColor="{StaticResource CardBackground}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
-                </Border.StrokeShape>
-                <Grid ColumnDefinitions="*,*">
-                    <VerticalStackLayout>
-                        <Label Text="Peso Actual" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
-                        <Label x:Name="LblCurrentWeight" Text="-- kg" TextColor="White" FontSize="24" FontAttributes="Bold"/>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="End">
-                        <Label Text="Límite Categoría" TextColor="{StaticResource SubtitleColor}" FontSize="12" HorizontalOptions="End"/>
-                        <Label x:Name="LblTargetWeight" Text="67.0 kg" TextColor="{StaticResource AccentColor}" FontSize="24" FontAttributes="Bold" HorizontalOptions="End"/>
-                    </VerticalStackLayout>
-                </Grid>
-            </Border>
+            <Entry x:Name="EntryGymRounds" Placeholder="Rounds"/>
+            <Picker x:Name="PckGymType">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Sparring</x:String>
+                        <x:String>Costal</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+            <Entry x:Name="EntryGymNotes" Placeholder="Notas"/>
+            <Button Text="Guardar Sesión" Clicked="OnSaveGymSession"/>
+            <Button Text="Compartir" Clicked="OnShareSession"/>
 
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                <Border Padding="15" BackgroundColor="{StaticResource CardBackground}">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="12"/>
-                    </Border.StrokeShape>
-                    <VerticalStackLayout>
-                        <Label Text="Calorías Hoy" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
-                        <Label x:Name="LblDailyCals" Text="0 kcal" TextColor="{StaticResource RestColor}" FontSize="24" FontAttributes="Bold"/>
-                        <Label Text="Basado en rounds" FontSize="10" TextColor="{StaticResource SubtitleColor}"/>
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border Grid.Column="1" Padding="15" BackgroundColor="{StaticResource CardBackground}">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="12"/>
-                    </Border.StrokeShape>
-                    <VerticalStackLayout>
-                        <Label Text="Rounds Hoy" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
-                        <Label x:Name="LblDailyRounds" Text="0" TextColor="White" FontSize="24" FontAttributes="Bold"/>
-                        <Label Text="Total sesiones" FontSize="10" TextColor="{StaticResource SubtitleColor}"/>
-                    </VerticalStackLayout>
-                </Border>
-            </Grid>
-
-            <Label Text="Registro de Gimnasio" FontSize="16" FontAttributes="Bold" TextColor="White" Margin="0,10,0,0"/>
-            <Border Padding="15" BackgroundColor="{StaticResource CardBackground}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
-                </Border.StrokeShape>
-                <VerticalStackLayout Spacing="15">
-                    <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
-                        <VerticalStackLayout Spacing="5">
-                            <Label Text="Rounds" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
-                            <Entry x:Name="EntryGymRounds" Keyboard="Numeric" Placeholder="Ej. 12" BackgroundColor="#27272A" TextColor="White"/>
-                        </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1" Spacing="5">
-                            <Label Text="Tipo de trabajo" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
-                            <Picker x:Name="PckGymType" Title="Seleccionar" TextColor="{StaticResource WorkColor}" BackgroundColor="#27272A">
-                                <Picker.Items>
-                                    <x:String>Sparring</x:String>
-                                    <x:String>Costal</x:String>
-                                    <x:String>Sombra</x:String>
-                                    <x:String>Manoplas</x:String>
-                                </Picker.Items>
-                            </Picker>
-                        </VerticalStackLayout>
-                    </Grid>
-
-                    <Entry x:Name="EntryGymNotes" Placeholder="Notas (Ej. Trabajar jab doble)" BackgroundColor="#27272A" TextColor="White"/>
-
-                    <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
-                        <Button Text="Guardar" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="8" Clicked="OnSaveGymSession"/>
-                        <Button Grid.Column="1" Text="Compartir ↗️" BackgroundColor="#06B6D4" TextColor="Black" FontAttributes="Bold" CornerRadius="8" Clicked="OnShareSession"/>
-                    </Grid>
-                </VerticalStackLayout>
-            </Border>
-
-            <CollectionView x:Name="ListGymSessions">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border BackgroundColor="#1A1A1A" Margin="0,5" Padding="15">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8"/>
-                            </Border.StrokeShape>
-                            <Grid ColumnDefinitions="*, Auto">
-                                <VerticalStackLayout>
-                                    <Label Text="{Binding Type}" FontSize="16" FontAttributes="Bold" TextColor="White"/>
-                                    <Label Text="{Binding Notes}" FontSize="12" TextColor="{StaticResource SubtitleColor}"/>
-                                </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" VerticalOptions="Center">
-                                    <Label Text="{Binding RoundsText}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource WorkColor}" HorizontalOptions="End"/>
-                                    <Label Text="{Binding CaloriesText}" FontSize="12" TextColor="{StaticResource RestColor}" HorizontalOptions="End"/>
-                                </VerticalStackLayout>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-
+            <CollectionView x:Name="ListGymSessions"/>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

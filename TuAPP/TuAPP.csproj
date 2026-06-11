@@ -83,6 +83,12 @@
 	  <Compile Update="CardioPage.xaml.cs">
 	    <DependentUpon>CardioPage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="OnboardingPage.xaml.cs">
+	    <DependentUpon>OnboardingPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="WorkoutSummaryPage.xaml.cs">
+	    <DependentUpon>WorkoutSummaryPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="ProfilePage.xaml.cs">
 	    <DependentUpon>ProfilePage.xaml</DependentUpon>
 	  </Compile>
@@ -102,6 +108,12 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="CardioPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="OnboardingPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="WorkoutSummaryPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="ProfilePage.xaml">

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Maui.Dispatching;
-using Plugin.Maui.Audio; // Necesario para el reproductor
+using Plugin.Maui.Audio;
+using TuAPP.Models;
+using TuAPP.Services;
 
 namespace TuAPP;
 
@@ -12,7 +14,7 @@ public partial class BoxingTimerPage : ContentPage
     private int _currentRound = 1, _timeLeft;
     private bool _useSound, _useVibration, _keepScreenOn;
 
-    private IAudioPlayer? _bellPlayer; // Variable del reproductor
+    private IAudioPlayer? _bellPlayer;
 
     public BoxingTimerPage()
     {
@@ -20,9 +22,22 @@ public partial class BoxingTimerPage : ContentPage
         _timer = Dispatcher.CreateTimer();
         _timer.Interval = TimeSpan.FromSeconds(1);
         _timer.Tick += OnTimerTicked;
-
-        // Cargar el audio en la memoria al abrir la app
         LoadAudio();
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+        if (_currentState != TimerState.Idle)
+        {
+            return true; // Bloquea la salida si el timer está activo
+        }
+        return base.OnBackButtonPressed();
+    }
+
+    private void ToggleScreenLock(bool isLocked)
+    {
+        Shell.SetTabBarIsVisible(this, !isLocked);
+        DeviceDisplay.Current.KeepScreenOn = isLocked && _keepScreenOn;
     }
 
     private async void LoadAudio()
@@ -32,10 +47,7 @@ public partial class BoxingTimerPage : ContentPage
             var audioFile = await FileSystem.OpenAppPackageFileAsync("bell.mp3");
             _bellPlayer = AudioManager.Current.CreatePlayer(audioFile);
         }
-        catch
-        {
-            // Si el archivo bell.mp3 no existe o hay error, no crashea la app
-        }
+        catch { /* Falla silenciosa y segura */ }
     }
 
     protected override void OnAppearing()
@@ -58,22 +70,20 @@ public partial class BoxingTimerPage : ContentPage
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        DeviceDisplay.Current.KeepScreenOn = false;
+        ToggleScreenLock(false);
     }
 
-    private void SafeVibrate(int ms) { if (_useVibration) { try { Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(ms)); } catch { } } }
     private void SafeSpeak(string text) { if (_useSound) { try { Task.Run(async () => await TextToSpeech.SpeakAsync(text)); } catch { } } }
-
-    // Método para reproducir la campana real
-    private void PlayBell() { if (_useSound && _bellPlayer != null) _bellPlayer.Play(); }
+    private void PlayBell() { if (_useSound && _bellPlayer != null) { try { _bellPlayer.Play(); } catch { } } }
 
     private void ResetTimer()
     {
         _timer.Stop();
+        ForegroundTimerBridge.Stop();
         _currentState = TimerState.Idle;
         _currentRound = 1;
         _timeLeft = _cfgWork;
-        DeviceDisplay.Current.KeepScreenOn = false;
+        ToggleScreenLock(false);
         UpdateUI();
     }
 
@@ -82,7 +92,8 @@ public partial class BoxingTimerPage : ContentPage
         if (_timer.IsRunning)
         {
             _timer.Stop();
-            DeviceDisplay.Current.KeepScreenOn = false;
+            ForegroundTimerBridge.Stop();
+            ToggleScreenLock(false);
         }
         else
         {
@@ -92,10 +103,12 @@ public partial class BoxingTimerPage : ContentPage
                 _timeLeft = _cfgPrep > 0 ? _cfgPrep : _cfgWork;
                 if (_cfgPrep == 0) _currentState = TimerState.Work;
 
-                if (_currentState == TimerState.Prep) SafeSpeak("Preparación"); // TTS solo para preparación
+                if (_currentState == TimerState.Prep) SafeSpeak("Preparación");
             }
+
             _timer.Start();
-            if (_keepScreenOn) DeviceDisplay.Current.KeepScreenOn = true;
+            ForegroundTimerBridge.Start(_timeLeft, LblStatusTop.Text);
+            ToggleScreenLock(true);
         }
         UpdateUI();
     }
@@ -103,42 +116,71 @@ public partial class BoxingTimerPage : ContentPage
     private void OnSkipClicked(object? sender, EventArgs e) { if (_currentState != TimerState.Idle) AdvanceState(); }
     private void OnResetClicked(object? sender, EventArgs e) => ResetTimer();
 
+    // AQUÍ ESTÁ EL PRIMER CÓDIGO (Haptics de 10 segundos)
     private void OnTimerTicked(object? sender, EventArgs e)
     {
         if (_timeLeft > 0)
         {
             _timeLeft--;
-            // Mantengo el aviso de los 10 segundos en voz y vibración corta porque es útil
-            if (_timeLeft == 10 && _currentState == TimerState.Work) { SafeSpeak("Diez"); SafeVibrate(200); }
+            if (_timeLeft <= 10 && _timeLeft > 0 && _currentState == TimerState.Work)
+            {
+                if (_timeLeft == 10) SafeSpeak("Diez");
+                if (_useVibration) AudioAndHapticService.VibrateCountdownTick();
+            }
             UpdateUI();
         }
         else AdvanceState();
     }
 
+    // AQUÍ ESTÁ EL SEGUNDO CÓDIGO (Haptics de campana y Pantalla de Resumen)
     private void AdvanceState()
     {
         if (_currentState == TimerState.Prep || _currentState == TimerState.Rest)
         {
             _currentState = TimerState.Work;
             _timeLeft = _cfgWork > 0 ? _cfgWork : 1;
-            SafeVibrate(800);
-            PlayBell(); // Toca la campana al iniciar el round
+            if (_useVibration) AudioAndHapticService.VibrateRoundStart();
+            PlayBell();
         }
         else if (_currentState == TimerState.Work)
         {
             if (_currentRound >= _cfgRounds)
             {
-                _timer.Stop(); _currentState = TimerState.Idle;
-                PlayBell(); // Toca la campana al finalizar el entrenamiento
+                _timer.Stop();
+                ForegroundTimerBridge.Stop();
+                _currentState = TimerState.Idle;
+                if (_useVibration) AudioAndHapticService.VibrateRoundEnd();
+                PlayBell();
                 SafeSpeak("Entrenamiento completado");
-                ResetTimer(); return;
+
+                int totalSecs = (_cfgRounds * _cfgWork) + ((_cfgRounds - 1) * _cfgRest);
+                var profile = StorageService.LoadProfile();
+                WorkoutType currentWorkoutType = WorkoutType.ClassicBoxing;
+                double calsBurned = CalorieCalculator.Calculate(currentWorkoutType, profile.WeightKg, totalSecs);
+
+                var session = new WorkoutSession
+                {
+                    Type = currentWorkoutType,
+                    TotalRounds = _cfgRounds,
+                    RoundsCompleted = _cfgRounds,
+                    TotalSeconds = totalSecs,
+                    CaloriesBurned = calsBurned
+                };
+                StorageService.AddWorkoutSession(session);
+
+                // Llama a la tarjeta al terminar
+                Navigation.PushModalAsync(new WorkoutSummaryPage(session));
+
+                ResetTimer();
+                return;
             }
             _currentState = TimerState.Rest;
             _timeLeft = _cfgRest > 0 ? _cfgRest : 1;
             _currentRound++;
-            SafeVibrate(800);
-            PlayBell(); // Toca la campana al terminar el round (inicio de descanso)
+            if (_useVibration) AudioAndHapticService.VibrateRoundEnd();
+            PlayBell();
         }
+        ForegroundTimerBridge.Start(_timeLeft, LblStatusTop.Text);
         UpdateUI();
     }
 
