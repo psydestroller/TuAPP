@@ -12,8 +12,6 @@ public partial class BoxingTimerPage : ContentPage
     private TimerState _currentState = TimerState.Idle;
     private int _cfgRounds, _cfgWork, _cfgRest, _cfgPrep;
     private int _currentRound = 1, _timeLeft;
-    private bool _useSound, _useVibration, _keepScreenOn;
-
     private IAudioPlayer? _bellPlayer;
 
     public BoxingTimerPage()
@@ -25,66 +23,33 @@ public partial class BoxingTimerPage : ContentPage
         LoadAudio();
     }
 
-    protected override bool OnBackButtonPressed()
-    {
-        if (_currentState != TimerState.Idle)
-        {
-            return true; // Bloquea la salida si el timer está activo
-        }
-        return base.OnBackButtonPressed();
-    }
-
-    private void ToggleScreenLock(bool isLocked)
-    {
-        Shell.SetTabBarIsVisible(this, !isLocked);
-        DeviceDisplay.Current.KeepScreenOn = isLocked && _keepScreenOn;
-    }
-
     private async void LoadAudio()
     {
         try
         {
-            var audioFile = await FileSystem.OpenAppPackageFileAsync("bell.mp3");
-            _bellPlayer = AudioManager.Current.CreatePlayer(audioFile);
+            var file = await FileSystem.OpenAppPackageFileAsync("bell.mp3");
+            _bellPlayer = AudioManager.Current.CreatePlayer(file);
         }
-        catch { /* Falla silenciosa y segura */ }
+        catch { /* Falla segura si no encuentra el mp3 */ }
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        // Adelanto de la Fase 3: Asegurar permisos de notificaciones al entrar
+        var status = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
+        if (status != PermissionStatus.Granted)
+        {
+            await Permissions.RequestAsync<Permissions.PostNotifications>();
+        }
+
         _cfgRounds = Preferences.Get("BoxingRounds", 12);
         _cfgWork = Preferences.Get("BoxingWork", 180);
         _cfgRest = Preferences.Get("BoxingRest", 30);
         _cfgPrep = Preferences.Get("BoxingPrep", 10);
-        _useSound = Preferences.Get("UseSound", true);
-        _useVibration = Preferences.Get("UseVibration", true);
-        _keepScreenOn = Preferences.Get("KeepScreenOn", true);
-
-        LblHeaderWork.Text = TimeSpan.FromSeconds(_cfgWork).ToString(@"mm\:ss");
-        LblHeaderRest.Text = TimeSpan.FromSeconds(_cfgRest).ToString(@"mm\:ss");
 
         if (_currentState == TimerState.Idle) ResetTimer();
-    }
-
-    protected override void OnDisappearing()
-    {
-        base.OnDisappearing();
-        ToggleScreenLock(false);
-    }
-
-    private void SafeSpeak(string text) { if (_useSound) { try { Task.Run(async () => await TextToSpeech.SpeakAsync(text)); } catch { } } }
-    private void PlayBell() { if (_useSound && _bellPlayer != null) { try { _bellPlayer.Play(); } catch { } } }
-
-    private void ResetTimer()
-    {
-        _timer.Stop();
-        ForegroundTimerBridge.Stop();
-        _currentState = TimerState.Idle;
-        _currentRound = 1;
-        _timeLeft = _cfgWork;
-        ToggleScreenLock(false);
-        UpdateUI();
     }
 
     private void OnPlayPauseClicked(object? sender, EventArgs e)
@@ -93,7 +58,7 @@ public partial class BoxingTimerPage : ContentPage
         {
             _timer.Stop();
             ForegroundTimerBridge.Stop();
-            ToggleScreenLock(false);
+            DeviceDisplay.Current.KeepScreenOn = false;
         }
         else
         {
@@ -102,105 +67,112 @@ public partial class BoxingTimerPage : ContentPage
                 _currentState = TimerState.Prep;
                 _timeLeft = _cfgPrep > 0 ? _cfgPrep : _cfgWork;
                 if (_cfgPrep == 0) _currentState = TimerState.Work;
-
-                if (_currentState == TimerState.Prep) SafeSpeak("Preparación");
             }
-
             _timer.Start();
             ForegroundTimerBridge.Start(_timeLeft, LblStatusTop.Text);
-            ToggleScreenLock(true);
+            DeviceDisplay.Current.KeepScreenOn = true;
         }
         UpdateUI();
     }
 
-    private void OnSkipClicked(object? sender, EventArgs e) { if (_currentState != TimerState.Idle) AdvanceState(); }
-    private void OnResetClicked(object? sender, EventArgs e) => ResetTimer();
-
-    // AQUÍ ESTÁ EL PRIMER CÓDIGO (Haptics de 10 segundos)
     private void OnTimerTicked(object? sender, EventArgs e)
     {
         if (_timeLeft > 0)
         {
             _timeLeft--;
-            if (_timeLeft <= 10 && _timeLeft > 0 && _currentState == TimerState.Work)
-            {
-                if (_timeLeft == 10) SafeSpeak("Diez");
-                if (_useVibration) AudioAndHapticService.VibrateCountdownTick();
-            }
             UpdateUI();
         }
         else AdvanceState();
     }
 
-    // AQUÍ ESTÁ EL SEGUNDO CÓDIGO (Haptics de campana y Pantalla de Resumen)
     private void AdvanceState()
     {
         if (_currentState == TimerState.Prep || _currentState == TimerState.Rest)
         {
             _currentState = TimerState.Work;
-            _timeLeft = _cfgWork > 0 ? _cfgWork : 1;
-            if (_useVibration) AudioAndHapticService.VibrateRoundStart();
-            PlayBell();
+            _timeLeft = _cfgWork;
+            if (Preferences.Get("UseVibration", true)) AudioAndHapticService.VibrateRoundStart();
+            _bellPlayer?.Play();
         }
         else if (_currentState == TimerState.Work)
         {
             if (_currentRound >= _cfgRounds)
             {
+                // ==========================================
+                // LÓGICA DE FASE 2: CÁLCULO DINÁMICO REAL
+                // ==========================================
                 _timer.Stop();
                 ForegroundTimerBridge.Stop();
-                _currentState = TimerState.Idle;
-                if (_useVibration) AudioAndHapticService.VibrateRoundEnd();
-                PlayBell();
-                SafeSpeak("Entrenamiento completado");
+                DeviceDisplay.Current.KeepScreenOn = false;
+                _bellPlayer?.Play();
 
-                int totalSecs = (_cfgRounds * _cfgWork) + ((_cfgRounds - 1) * _cfgRest);
+                // 1. Leer qué entrenaste
+                string selected = PckWorkoutType.SelectedItem?.ToString() ?? "Boxeo Clásico";
+                WorkoutType currentWorkoutType = selected switch
+                {
+                    "Sombra" => WorkoutType.Shadow,
+                    "Costal" => WorkoutType.HeavyBag,
+                    "Sparring" => WorkoutType.Sparring,
+                    "Cuerda" => WorkoutType.JumpRope,
+                    _ => WorkoutType.ClassicBoxing
+                };
+
+                // 2. Calcular calorías exactas
                 var profile = StorageService.LoadProfile();
-                WorkoutType currentWorkoutType = WorkoutType.ClassicBoxing;
+                int totalSecs = (_cfgRounds * _cfgWork) + ((_cfgRounds - 1) * _cfgRest);
                 double calsBurned = CalorieCalculator.Calculate(currentWorkoutType, profile.WeightKg, totalSecs);
 
+                // 3. Guardar en el historial
                 var session = new WorkoutSession
                 {
                     Type = currentWorkoutType,
                     TotalRounds = _cfgRounds,
                     RoundsCompleted = _cfgRounds,
                     TotalSeconds = totalSecs,
-                    CaloriesBurned = calsBurned
+                    CaloriesBurned = calsBurned,
+                    Notes = $"Guardado automático del temporizador"
                 };
                 StorageService.AddWorkoutSession(session);
 
-                // Llama a la tarjeta al terminar
+                // Mandar a la tarjeta de resumen
                 Navigation.PushModalAsync(new WorkoutSummaryPage(session));
 
                 ResetTimer();
                 return;
             }
             _currentState = TimerState.Rest;
-            _timeLeft = _cfgRest > 0 ? _cfgRest : 1;
+            _timeLeft = _cfgRest;
             _currentRound++;
-            if (_useVibration) AudioAndHapticService.VibrateRoundEnd();
-            PlayBell();
+            if (Preferences.Get("UseVibration", true)) AudioAndHapticService.VibrateRoundEnd();
+            _bellPlayer?.Play();
         }
+
         ForegroundTimerBridge.Start(_timeLeft, LblStatusTop.Text);
+        UpdateUI();
+    }
+
+    private void OnResetClicked(object? sender, EventArgs e) => ResetTimer();
+
+    private void ResetTimer()
+    {
+        _timer.Stop();
+        ForegroundTimerBridge.Stop();
+        _currentState = TimerState.Idle;
+        _currentRound = 1;
+        _timeLeft = _cfgWork;
+        DeviceDisplay.Current.KeepScreenOn = false;
         UpdateUI();
     }
 
     private void UpdateUI()
     {
-        BtnPlayPause.Text = _timer.IsRunning ? "⏸" : "▶";
+        BtnPlayPause.Text = _timer.IsRunning ? "⏸ PAUSA" : "▶ INICIAR";
         LblRound.Text = $"Ronda {_currentRound}/{_cfgRounds}";
         LblTimer.Text = TimeSpan.FromSeconds(_timeLeft).ToString(@"mm\:ss");
 
-        Color currentColor = Colors.White;
-        double currentMaxTime = 1;
-
-        if (_currentState == TimerState.Prep) { LblStatusTop.Text = "PREPARACIÓN"; currentColor = Color.FromArgb("#EAB308"); currentMaxTime = _cfgPrep > 0 ? _cfgPrep : 1; }
-        else if (_currentState == TimerState.Work) { LblStatusTop.Text = "¡PELEA!"; currentColor = Color.FromArgb("#10B981"); currentMaxTime = _cfgWork > 0 ? _cfgWork : 1; }
-        else if (_currentState == TimerState.Rest) { LblStatusTop.Text = "DESCANSO"; currentColor = Color.FromArgb("#EF4444"); currentMaxTime = _cfgRest > 0 ? _cfgRest : 1; }
-        else { LblStatusTop.Text = "LISTO"; currentMaxTime = _cfgWork > 0 ? _cfgWork : 1; }
-
-        LblTimer.TextColor = currentColor; LblStatusTop.TextColor = currentColor;
-        TimerDrawable.Progress = currentMaxTime > 0 ? (double)_timeLeft / currentMaxTime : 0;
-        TimerDrawable.ProgressColor = currentColor;
-        TimerGraphicsView.Invalidate();
+        if (_currentState == TimerState.Prep) { LblStatusTop.Text = "PREPARACIÓN"; LblStatusTop.TextColor = Color.FromArgb("#EAB308"); LblTimer.TextColor = Color.FromArgb("#EAB308"); }
+        else if (_currentState == TimerState.Work) { LblStatusTop.Text = "¡PELEA!"; LblStatusTop.TextColor = Color.FromArgb("#10B981"); LblTimer.TextColor = Color.FromArgb("#10B981"); }
+        else if (_currentState == TimerState.Rest) { LblStatusTop.Text = "DESCANSO"; LblStatusTop.TextColor = Color.FromArgb("#EF4444"); LblTimer.TextColor = Color.FromArgb("#EF4444"); }
+        else { LblStatusTop.Text = "LISTO"; LblStatusTop.TextColor = Colors.White; LblTimer.TextColor = Colors.White; }
     }
 }

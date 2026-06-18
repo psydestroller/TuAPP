@@ -1,42 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:TuAPP"
              x:Class="TuAPP.BoxingTimerPage"
-             BackgroundColor="{StaticResource BackgroundColor}">
+             BackgroundColor="#09090B">
 
-    <Grid RowDefinitions="Auto, *, Auto" Padding="20,40,20,30">
-        <VerticalStackLayout Grid.Row="0" Spacing="15">
-            <Label Text="Classic boxing 🥊" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="White"/>
-            <Grid ColumnDefinitions="*, *" HorizontalOptions="Center" ColumnSpacing="40">
-                <VerticalStackLayout HorizontalOptions="Center">
-                    <Label Text="Ejercicio" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-                    <Label x:Name="LblHeaderWork" Text="03:00" FontSize="16" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
-                    <Label Text="Descanso" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-                    <Label x:Name="LblHeaderRest" Text="00:30" FontSize="16" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-            </Grid>
-        </VerticalStackLayout>
+    <VerticalStackLayout Spacing="25" Padding="30" VerticalOptions="Center">
 
-        <Grid Grid.Row="1" WidthRequest="300" HeightRequest="300" HorizontalOptions="Center" VerticalOptions="Center">
-            <GraphicsView x:Name="TimerGraphicsView" WidthRequest="300" HeightRequest="300">
-                <GraphicsView.Drawable>
-                    <local:CircularProgressDrawable x:Name="TimerDrawable" />
-                </GraphicsView.Drawable>
-            </GraphicsView>
-            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="-5">
-                <Label x:Name="LblStatusTop" Text="LISTO" FontSize="14" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
-                <Label x:Name="LblTimer" Text="00:00" FontSize="85" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" Margin="0,-5,0,-5"/>
-                <Label x:Name="LblRound" Text="Ronda 1/12" FontSize="16" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-            </VerticalStackLayout>
+        <Label x:Name="LblStatusTop" Text="LISTO" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" TextColor="White"/>
+        <Label x:Name="LblTimer" FontSize="80" FontAttributes="Bold" HorizontalOptions="Center" Text="03:00" TextColor="White"/>
+        <Label x:Name="LblRound" FontSize="20" HorizontalOptions="Center" Text="Ronda 1/12" TextColor="#A1A1AA"/>
+
+        <Border StrokeShape="RoundRectangle 12" BackgroundColor="#18181B" Padding="5" Margin="0,10">
+            <Picker x:Name="PckWorkoutType" Title="¿Qué vas a entrenar?" TextColor="White" TitleColor="#A1A1AA" HorizontalTextAlignment="Center">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Boxeo Clásico</x:String>
+                        <x:String>Sombra</x:String>
+                        <x:String>Costal</x:String>
+                        <x:String>Sparring</x:String>
+                        <x:String>Cuerda</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+                <Picker.SelectedIndex>0</Picker.SelectedIndex>
+            </Picker>
+        </Border>
+
+        <Grid ColumnDefinitions="*, *" ColumnSpacing="15" Margin="0,10,0,0">
+            <Button Grid.Column="0" Text="Reiniciar" Clicked="OnResetClicked" BackgroundColor="#27272A" TextColor="White" HeightRequest="60" CornerRadius="12"/>
+            <Button Grid.Column="1" x:Name="BtnPlayPause" Text="▶ INICIAR" Clicked="OnPlayPauseClicked" BackgroundColor="#10B981" TextColor="Black" FontAttributes="Bold" HeightRequest="60" CornerRadius="12"/>
         </Grid>
 
-        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" Spacing="25">
-            <Button Text="↺" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="{StaticResource CardBackground}" TextColor="White" FontSize="20" Clicked="OnResetClicked"/>
-            <Button x:Name="BtnPlayPause" Text="▶" WidthRequest="80" HeightRequest="80" CornerRadius="40" BackgroundColor="{StaticResource CardBackground}" TextColor="White" FontSize="28" Clicked="OnPlayPauseClicked"/>
-            <Button Text="⏭" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="{StaticResource CardBackground}" TextColor="White" FontSize="20" Clicked="OnSkipClicked"/>
-        </HorizontalStackLayout>
-    </Grid>
+    </VerticalStackLayout>
 </ContentPage>

@@ -1,34 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<Shell x:Class="TuAPP.AppShell"
-       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-       xmlns:local="clr-namespace:TuAPP"
-       Shell.TabBarBackgroundColor="#09090B"
-       Shell.TabBarTitleColor="#FFFFFF"
-       Shell.TabBarUnselectedColor="#52525B">
+<Shell
+    x:Class="TuAPP.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:TuAPP"
+    Shell.FlyoutBehavior="Flyout"
+    BackgroundColor="#09090B"
+    FlyoutBackgroundColor="#18181B"
+    Title="Campamento">
 
-    <TabBar>
-        <Tab Title="Cronómetro" Icon="timer.png">
-            <ShellContent ContentTemplate="{DataTemplate local:BoxingTimerPage}" />
-        </Tab>
-        <Tab Title="Sprints" Icon="bolt.png">
-            <ShellContent ContentTemplate="{DataTemplate local:SprintsPage}" />
-        </Tab>
-        <Tab Title="IMC" Icon="chart.png">
-            <ShellContent ContentTemplate="{DataTemplate local:IMCpage}" />
-        </Tab>
-        <Tab Title="Cardio" Icon="run.png">
-            <ShellContent ContentTemplate="{DataTemplate local:CardioPage}" />
-        </Tab>
-        <Tab Title="Preparacion" Icon="home.png">
+    <FlyoutItem Title="Principal" FlyoutDisplayOptions="AsMultipleItems">
+        <Tab Title="Campamento" Icon="dotnet_bot.png">
             <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
         </Tab>
-        <Tab Title="Perfil" Icon="user.png">
-            <ShellContent ContentTemplate="{DataTemplate local:ProfilePage}" />
+        <Tab Title="Entrenar" Icon="dotnet_bot.png">
+            <ShellContent ContentTemplate="{DataTemplate local:BoxingTimerPage}" />
         </Tab>
-        <Tab Title="Ajustes" Icon="cog.png">
-            <ShellContent ContentTemplate="{DataTemplate local:SettingsPage}" />
-        </Tab>
-    </TabBar>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Acondicionamiento">
+        <ShellContent Title="Sprints" ContentTemplate="{DataTemplate local:SprintsPage}" />
+        <ShellContent Title="Cardio" ContentTemplate="{DataTemplate local:CardioPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Mediciones">
+        <ShellContent Title="Calculadora IMC" ContentTemplate="{DataTemplate local:IMCpage}" />
+        <ShellContent Title="Mi Perfil" ContentTemplate="{DataTemplate local:ProfilePage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Configuración">
+        <ShellContent Title="Ajustes de App" ContentTemplate="{DataTemplate local:SettingsPage}" />
+    </FlyoutItem>
 
 </Shell>
