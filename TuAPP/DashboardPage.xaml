@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:TuAPP"
              x:Class="TuAPP.DashboardPage"
              BackgroundColor="#09090B"
              Title="Campamento">
@@ -30,16 +31,25 @@
             </Border>
 
             <Border StrokeShape="RoundRectangle 16" BackgroundColor="#18181B" Padding="20">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="📊 RENDIMIENTO SEMANAL" FontSize="14" TextColor="#A1A1AA" FontAttributes="Bold"/>
-                    <Grid ColumnDefinitions="*, *">
-                        <VerticalStackLayout Grid.Column="0">
-                            <Label x:Name="LblDailyRounds" Text="0" FontSize="28" FontAttributes="Bold" TextColor="White"/>
-                            <Label Text="Rounds Totales" FontSize="12" TextColor="#A1A1AA"/>
-                        </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1">
-                            <Label x:Name="LblDailyCals" Text="0 kcal" FontSize="28" FontAttributes="Bold" TextColor="#EF4444"/>
-                            <Label Text="Desgaste Est." FontSize="12" TextColor="#A1A1AA"/>
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="📊 META SEMANAL (50 ROUNDS)" FontSize="14" TextColor="#A1A1AA" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+                    <Grid ColumnDefinitions="*, *" VerticalOptions="Center">
+                        <Grid Grid.Column="0" HeightRequest="120" WidthRequest="120" HorizontalOptions="Center">
+                            <GraphicsView x:Name="ProgressGraphicsView">
+                                <GraphicsView.Drawable>
+                                    <local:CircularProgressDrawable x:Name="CircularDrawable" />
+                                </GraphicsView.Drawable>
+                            </GraphicsView>
+                            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                                <Label x:Name="LblDailyRounds" Text="0" FontSize="26" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                                <Label Text="Rounds" FontSize="10" TextColor="#A1A1AA" HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center">
+                            <Label x:Name="LblDailyCals" Text="0 kcal" FontSize="28" FontAttributes="Bold" TextColor="#EF4444" HorizontalOptions="Center"/>
+                            <Label Text="Desgaste Est." FontSize="12" TextColor="#A1A1AA" HorizontalOptions="Center"/>
                         </VerticalStackLayout>
                     </Grid>
                 </VerticalStackLayout>
@@ -47,7 +57,7 @@
 
             <Border StrokeShape="RoundRectangle 16" BackgroundColor="#18181B" Padding="20">
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="⏰ RECORDATORIO DE ENTRENAMIENTO" FontSize="14" TextColor="#A1A1AA" FontAttributes="Bold"/>
+                    <Label Text="⏰ RECORDATORIO" FontSize="14" TextColor="#A1A1AA" FontAttributes="Bold"/>
                     <Grid ColumnDefinitions="*, Auto" ColumnSpacing="15" VerticalOptions="Center">
                         <TimePicker x:Name="TpReminder" Grid.Column="0" TextColor="White" BackgroundColor="#27272A"/>
                         <Button Grid.Column="1" Text="Programar" Clicked="OnScheduleReminderClicked" BackgroundColor="#10B981" TextColor="Black" FontAttributes="Bold"/>

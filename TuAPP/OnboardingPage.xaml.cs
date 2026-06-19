@@ -23,9 +23,14 @@ public partial class OnboardingPage : ContentPage
         };
 
         StorageService.SaveProfile(profile);
-        Preferences.Set("is_first_time", false);
 
-        // Cambia la pantalla a la aplicación principal (AppShell)
-        Application.Current.MainPage = new AppShell();
+        // CORRECCIÓN 1: La llave coincide exactamente con App.xaml.cs
+        Preferences.Set("IsFirstLaunch", false);
+
+        // CORRECCIÓN 2: Navegación moderna y segura para .NET MAUI
+        if (Application.Current?.Windows.Count > 0)
+        {
+            Application.Current.Windows[0].Page = new AppShell();
+        }
     }
 }

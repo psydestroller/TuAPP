@@ -1,37 +1,61 @@
 using Microsoft.Maui.Graphics;
 
-namespace TuAPP;
-
-public class CircularProgressDrawable : IDrawable
+namespace TuAPP // <- REVISA QUE ESTE NAMESPACE COINCIDA CON TU PROYECTO
 {
-    public double Progress { get; set; } = 1.0;
-    public Color ProgressColor { get; set; } = Colors.White;
-
-    public void Draw(ICanvas canvas, RectF dirtyRect)
+    public class CircularProgressDrawable : IDrawable
     {
-        var centerX = dirtyRect.Width / 2;
-        var centerY = dirtyRect.Height / 2;
-        var radius = Math.Min(centerX, centerY) - 10; // 10px de margen
+        // Propiedades enlazables (Bindable) para controlar el dibujo
+        public double Progress { get; set; } = 0.0; // Valor de 0.0 a 1.0 (para el 0 al 100%)
+        public Color ProgressColor { get; set; } = Color.FromArgb("#10B981"); // Verde esmeralda (como tu diseño)
+        public Color BackgroundColor { get; set; } = Color.FromArgb("#18181B"); // Gris oscuro del diseño
+        public float Thickness { get; set; } = 15f; // Grosor de la línea
 
-        // 1. Dibuja el fondo del anillo (gris muy oscuro)
-        canvas.StrokeColor = Color.FromArgb("#1A1A1A");
-        canvas.StrokeSize = 12;
-        canvas.DrawCircle(centerX, centerY, radius);
+        // Variables precalculadas para mejorar el rendimiento (fuera de Draw)
+        private float startAngle = -90f; // Empezar en la parte superior (12 en punto)
 
-        // Si el progreso es 0 o menor, no dibujamos color
-        if (Progress <= 0) return;
+        public void Draw(ICanvas canvas, RectF dirtyRect)
+        {
+            // --- OPTIMIZACIÓN 1: Cálculo eficiente de medidas ---
+            // Centramos el dibujo en el GraphicsView
+            float centerX = dirtyRect.Center.X;
+            float centerY = dirtyRect.Center.Y;
 
-        // 2. Dibuja el progreso actual
-        canvas.StrokeColor = ProgressColor;
-        canvas.StrokeSize = 12;
-        canvas.StrokeLineCap = LineCap.Round;
+            // Calculamos el radio asegurándonos de que quepa todo el grosor
+            float maxDimension = Math.Min(dirtyRect.Width, dirtyRect.Height);
+            float radius = (maxDimension / 2f) - (Thickness / 2f);
 
-        // MAUI calcula los ángulos: 90 grados es arriba al centro.
-        float startAngle = 90;
-        // Calculamos cuánto arco dibujar en base al progreso (0.0 a 1.0)
-        float endAngle = startAngle - (float)(360 * Progress);
+            // Evitamos errores de renderizado si el radio es negativo o cero
+            if (radius <= 0) return;
 
-        // true = se dibuja en el sentido de las agujas del reloj
-        canvas.DrawArc(centerX - radius, centerY - radius, radius * 2, radius * 2, startAngle, endAngle, true, false);
+
+            // --- OPTIMIZACIÓN 2: Usar funciones nativas suaves ---
+
+            // A) DIBUJAR EL ANILLO DE FONDO (Gris oscuro)
+            // canvas.SetFillColor no sirve para anillos, necesitamos Stroke
+            canvas.StrokeColor = BackgroundColor;
+            canvas.StrokeSize = Thickness;
+            canvas.StrokeLineCap = LineCap.Round; // Puntas redondeadas
+
+            // Dibujamos un arco completo (360 grados) para el fondo
+            canvas.DrawArc(centerX - radius, centerY - radius, radius * 2, radius * 2, 0, 360, true, false);
+
+
+            // B) DIBUJAR EL ANILLO DE PROGRESO (Verde)
+            if (Progress > 0)
+            {
+                canvas.StrokeColor = ProgressColor;
+
+                // --- CLAVE PARA LA FLUIDEZ: DrawArc ---
+                // Calculamos el ángulo final basado en el progreso (0.0 - 1.0) * 360 grados
+                float sweepAngle = (float)(Progress * 360.0);
+
+                // MAUI maneja los ángulos en sentido horario.
+                // DrawArc dibuja un arco continuo y suave, no por "pedacitos".
+                canvas.DrawArc(centerX - radius, centerY - radius, radius * 2, radius * 2,
+                               startAngle, startAngle + sweepAngle,
+                               true, // En sentido de las agujas del reloj
+                               false); // No rellenar el centro del arco
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 using TuAPP.Models;
 using TuAPP.Services;
 using System.Collections.ObjectModel;
+using Microsoft.Maui.Graphics;
 
 namespace TuAPP;
 
@@ -36,8 +37,23 @@ public partial class DashboardPage : ContentPage
         DateTime startOfWeek = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + 1);
         var weeklySessions = history.Where(s => s.Date >= startOfWeek).ToList();
 
-        LblDailyRounds.Text = weeklySessions.Sum(s => s.RoundsCompleted).ToString();
+        // LÓGICA DE FASE 2: DIBUJO DE LA GRÁFICA CIRCULAR
+        int currentRounds = weeklySessions.Sum(s => s.RoundsCompleted);
+        int goalRounds = 50; // Meta semanal de campamento
+        double progressPercentage = Math.Min((double)currentRounds / goalRounds, 1.0);
+
+        LblDailyRounds.Text = currentRounds.ToString();
         LblDailyCals.Text = $"~{weeklySessions.Sum(s => s.CaloriesBurned):F0} kcal";
+
+        if (ProgressGraphicsView.Drawable is CircularProgressDrawable drawable)
+        {
+            drawable.Progress = progressPercentage;
+
+            if (progressPercentage >= 1.0) drawable.ProgressColor = Color.FromArgb("#EAB308");
+            else drawable.ProgressColor = Color.FromArgb("#10B981");
+
+            ProgressGraphicsView.Invalidate();
+        }
 
         RecentSessions.Clear();
         var sortedHistory = history.OrderByDescending(s => s.Date).Take(10).ToList();

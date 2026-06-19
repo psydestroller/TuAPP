@@ -11,7 +11,7 @@ public partial class BoxingTimerPage : ContentPage
     private IDispatcherTimer _timer;
     private TimerState _currentState = TimerState.Idle;
     private int _cfgRounds, _cfgWork, _cfgRest, _cfgPrep;
-    private int _currentRound = 1, _timeLeft;
+    private int _currentRound = 1, _timeLeft, _currentMaxTime;
     private IAudioPlayer? _bellPlayer;
 
     public BoxingTimerPage()
@@ -30,24 +30,20 @@ public partial class BoxingTimerPage : ContentPage
             var file = await FileSystem.OpenAppPackageFileAsync("bell.mp3");
             _bellPlayer = AudioManager.Current.CreatePlayer(file);
         }
-        catch { /* Falla segura si no encuentra el mp3 */ }
+        catch { }
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-
-        // Adelanto de la Fase 3: Asegurar permisos de notificaciones al entrar
-        var status = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
-        if (status != PermissionStatus.Granted)
-        {
-            await Permissions.RequestAsync<Permissions.PostNotifications>();
-        }
 
         _cfgRounds = Preferences.Get("BoxingRounds", 12);
         _cfgWork = Preferences.Get("BoxingWork", 180);
         _cfgRest = Preferences.Get("BoxingRest", 30);
         _cfgPrep = Preferences.Get("BoxingPrep", 10);
+
+        LblWorkConfig.Text = TimeSpan.FromSeconds(_cfgWork).ToString(@"mm\:ss");
+        LblRestConfig.Text = TimeSpan.FromSeconds(_cfgRest).ToString(@"mm\:ss");
 
         if (_currentState == TimerState.Idle) ResetTimer();
     }
@@ -66,11 +62,14 @@ public partial class BoxingTimerPage : ContentPage
             {
                 _currentState = TimerState.Prep;
                 _timeLeft = _cfgPrep > 0 ? _cfgPrep : _cfgWork;
+                _currentMaxTime = _timeLeft;
                 if (_cfgPrep == 0) _currentState = TimerState.Work;
             }
             _timer.Start();
             ForegroundTimerBridge.Start(_timeLeft, LblStatusTop.Text);
-            DeviceDisplay.Current.KeepScreenOn = true;
+
+            if (Preferences.Get("KeepScreenOn", true))
+                DeviceDisplay.Current.KeepScreenOn = true;
         }
         UpdateUI();
     }
@@ -85,44 +84,43 @@ public partial class BoxingTimerPage : ContentPage
         else AdvanceState();
     }
 
+    private void OnSkipClicked(object? sender, EventArgs e)
+    {
+        if (_currentState != TimerState.Idle) AdvanceState();
+    }
+
     private void AdvanceState()
     {
         if (_currentState == TimerState.Prep || _currentState == TimerState.Rest)
         {
             _currentState = TimerState.Work;
             _timeLeft = _cfgWork;
+            _currentMaxTime = _cfgWork;
+
             if (Preferences.Get("UseVibration", true)) AudioAndHapticService.VibrateRoundStart();
-            _bellPlayer?.Play();
+            if (Preferences.Get("UseBell", true)) _bellPlayer?.Play();
         }
         else if (_currentState == TimerState.Work)
         {
             if (_currentRound >= _cfgRounds)
             {
-                // ==========================================
-                // LÓGICA DE FASE 2: CÁLCULO DINÁMICO REAL
-                // ==========================================
                 _timer.Stop();
                 ForegroundTimerBridge.Stop();
                 DeviceDisplay.Current.KeepScreenOn = false;
-                _bellPlayer?.Play();
 
-                // 1. Leer qué entrenaste
-                string selected = PckWorkoutType.SelectedItem?.ToString() ?? "Boxeo Clásico";
-                WorkoutType currentWorkoutType = selected switch
-                {
-                    "Sombra" => WorkoutType.Shadow,
-                    "Costal" => WorkoutType.HeavyBag,
-                    "Sparring" => WorkoutType.Sparring,
-                    "Cuerda" => WorkoutType.JumpRope,
-                    _ => WorkoutType.ClassicBoxing
-                };
+                if (Preferences.Get("UseBell", true)) _bellPlayer?.Play();
 
-                // 2. Calcular calorías exactas
+                string selected = PckWorkoutType.SelectedItem?.ToString() ?? "Classic boxing 🥊";
+                WorkoutType currentWorkoutType = WorkoutType.ClassicBoxing;
+                if (selected.Contains("Sombra")) currentWorkoutType = WorkoutType.Shadow;
+                if (selected.Contains("Costal")) currentWorkoutType = WorkoutType.HeavyBag;
+                if (selected.Contains("Sparring")) currentWorkoutType = WorkoutType.Sparring;
+                if (selected.Contains("Cuerda")) currentWorkoutType = WorkoutType.JumpRope;
+
                 var profile = StorageService.LoadProfile();
                 int totalSecs = (_cfgRounds * _cfgWork) + ((_cfgRounds - 1) * _cfgRest);
                 double calsBurned = CalorieCalculator.Calculate(currentWorkoutType, profile.WeightKg, totalSecs);
 
-                // 3. Guardar en el historial
                 var session = new WorkoutSession
                 {
                     Type = currentWorkoutType,
@@ -130,21 +128,21 @@ public partial class BoxingTimerPage : ContentPage
                     RoundsCompleted = _cfgRounds,
                     TotalSeconds = totalSecs,
                     CaloriesBurned = calsBurned,
-                    Notes = $"Guardado automático del temporizador"
+                    Notes = "Guardado automático"
                 };
                 StorageService.AddWorkoutSession(session);
 
-                // Mandar a la tarjeta de resumen
                 Navigation.PushModalAsync(new WorkoutSummaryPage(session));
-
                 ResetTimer();
                 return;
             }
             _currentState = TimerState.Rest;
             _timeLeft = _cfgRest;
+            _currentMaxTime = _cfgRest;
             _currentRound++;
+
             if (Preferences.Get("UseVibration", true)) AudioAndHapticService.VibrateRoundEnd();
-            _bellPlayer?.Play();
+            if (Preferences.Get("UseBell", true)) _bellPlayer?.Play();
         }
 
         ForegroundTimerBridge.Start(_timeLeft, LblStatusTop.Text);
@@ -160,13 +158,14 @@ public partial class BoxingTimerPage : ContentPage
         _currentState = TimerState.Idle;
         _currentRound = 1;
         _timeLeft = _cfgWork;
+        _currentMaxTime = _cfgWork;
         DeviceDisplay.Current.KeepScreenOn = false;
         UpdateUI();
     }
 
     private void UpdateUI()
     {
-        BtnPlayPause.Text = _timer.IsRunning ? "⏸ PAUSA" : "▶ INICIAR";
+        BtnPlayPause.Text = _timer.IsRunning ? "⏸" : "▶";
         LblRound.Text = $"Ronda {_currentRound}/{_cfgRounds}";
         LblTimer.Text = TimeSpan.FromSeconds(_timeLeft).ToString(@"mm\:ss");
 
@@ -174,5 +173,12 @@ public partial class BoxingTimerPage : ContentPage
         else if (_currentState == TimerState.Work) { LblStatusTop.Text = "¡PELEA!"; LblStatusTop.TextColor = Color.FromArgb("#10B981"); LblTimer.TextColor = Color.FromArgb("#10B981"); }
         else if (_currentState == TimerState.Rest) { LblStatusTop.Text = "DESCANSO"; LblStatusTop.TextColor = Color.FromArgb("#EF4444"); LblTimer.TextColor = Color.FromArgb("#EF4444"); }
         else { LblStatusTop.Text = "LISTO"; LblStatusTop.TextColor = Colors.White; LblTimer.TextColor = Colors.White; }
+
+        if (TimerGraphicsView.Drawable is CircularProgressDrawable drawable)
+        {
+            drawable.Progress = _currentMaxTime > 0 ? (double)_timeLeft / _currentMaxTime : 0;
+            drawable.ProgressColor = LblStatusTop.TextColor;
+            TimerGraphicsView.Invalidate();
+        }
     }
 }

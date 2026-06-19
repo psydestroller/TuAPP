@@ -4,32 +4,40 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:TuAPP"
-    Shell.FlyoutBehavior="Flyout"
+    Shell.FlyoutBehavior="Disabled"
     BackgroundColor="#09090B"
-    FlyoutBackgroundColor="#18181B"
-    Title="Campamento">
+    TabBarBackgroundColor="#09090B"
+    TabBarTitleColor="White"
+    TabBarUnselectedColor="#A1A1AA">
 
-    <FlyoutItem Title="Principal" FlyoutDisplayOptions="AsMultipleItems">
-        <Tab Title="Campamento" Icon="dotnet_bot.png">
-            <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
-        </Tab>
-        <Tab Title="Entrenar" Icon="dotnet_bot.png">
+    <TabBar>
+        <Tab Title="Cronómetro" Icon="dotnet_bot.png">
             <ShellContent ContentTemplate="{DataTemplate local:BoxingTimerPage}" />
         </Tab>
-    </FlyoutItem>
 
-    <FlyoutItem Title="Acondicionamiento">
-        <ShellContent Title="Sprints" ContentTemplate="{DataTemplate local:SprintsPage}" />
-        <ShellContent Title="Cardio" ContentTemplate="{DataTemplate local:CardioPage}" />
-    </FlyoutItem>
+        <Tab Title="Sprints" Icon="dotnet_bot.png">
+            <ShellContent ContentTemplate="{DataTemplate local:SprintsPage}" />
+        </Tab>
 
-    <FlyoutItem Title="Mediciones">
-        <ShellContent Title="Calculadora IMC" ContentTemplate="{DataTemplate local:IMCpage}" />
-        <ShellContent Title="Mi Perfil" ContentTemplate="{DataTemplate local:ProfilePage}" />
-    </FlyoutItem>
+        <Tab Title="IMC" Icon="dotnet_bot.png">
+            <ShellContent ContentTemplate="{DataTemplate local:IMCpage}" />
+        </Tab>
+        
+        <Tab Title="Cardio" Icon="dotnet_bot.png">
+            <ShellContent ContentTemplate="{DataTemplate local:CardioPage}" />
+        </Tab>
 
-    <FlyoutItem Title="Configuración">
-        <ShellContent Title="Ajustes de App" ContentTemplate="{DataTemplate local:SettingsPage}" />
-    </FlyoutItem>
+        <Tab Title="Preparación" Icon="dotnet_bot.png">
+            <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
+        </Tab>
+
+        <Tab Title="Perfil" Icon="dotnet_bot.png">
+            <ShellContent ContentTemplate="{DataTemplate local:ProfilePage}" />
+        </Tab>
+
+        <Tab Title="Ajustes" Icon="dotnet_bot.png">
+            <ShellContent ContentTemplate="{DataTemplate local:SettingsPage}" />
+        </Tab>
+    </TabBar>
 
 </Shell>
