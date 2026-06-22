@@ -15,16 +15,19 @@
                     <RoundRectangle CornerRadius="12"/>
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="15">
+
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="Peso" TextColor="{StaticResource SubtitleColor}"/>
-                        <Label x:Name="LblPesoVal" Text="70 kg" TextColor="White"/>
+                        <Label Grid.Column="0" Text="Peso" TextColor="{StaticResource SubtitleColor}"/>
+                        <Label Grid.Column="1" x:Name="LblPesoVal" Text="70 kg" TextColor="White"/>
                     </Grid>
                     <Slider x:Name="SldPeso" Minimum="40" Maximum="130" Value="70" MinimumTrackColor="White" ValueChanged="OnSliderChanged"/>
+
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="Altura" TextColor="{StaticResource SubtitleColor}"/>
-                        <Label x:Name="LblAlturaVal" Text="175 cm" TextColor="White"/>
+                        <Label Grid.Column="0" Text="Altura" TextColor="{StaticResource SubtitleColor}"/>
+                        <Label Grid.Column="1" x:Name="LblAlturaVal" Text="175 cm" TextColor="White"/>
                     </Grid>
                     <Slider x:Name="SldAltura" Minimum="140" Maximum="210" Value="175" MinimumTrackColor="White" ValueChanged="OnSliderChanged"/>
+
                 </VerticalStackLayout>
             </Border>
 
@@ -79,7 +82,7 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnDefinitions="*, Auto, Auto" Padding="0,10">
-                                    <Label Text="{Binding Name}" TextColor="{Binding TextColor}"/>
+                                    <Label Grid.Column="0" Text="{Binding Name}" TextColor="{Binding TextColor}"/>
                                     <Label Grid.Column="1" Text="{Binding Range}" TextColor="{Binding TextColor}" Margin="0,0,10,0"/>
                                     <Border Grid.Column="2" IsVisible="{Binding IsUser}" BackgroundColor="#064E3B" Padding="8,2">
                                         <Border.StrokeShape>

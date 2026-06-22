@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace TuAPP;
@@ -32,7 +33,11 @@ public partial class CardioPage : ContentPage
 
     private void OnSaveLog(object? sender, EventArgs e)
     {
-        if (double.TryParse(EntryKm.Text, out double km) && double.TryParse(EntryMin.Text, out double min) && km > 0)
+        // Parseo seguro: Acepta tanto punto como coma en los decimales (ej. 1.5 o 1,5)
+        bool isKmValid = double.TryParse(EntryKm.Text?.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double km);
+        bool isMinValid = double.TryParse(EntryMin.Text?.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double min);
+
+        if (isKmValid && isMinValid && km > 0)
         {
             double paceMinPerKm = min / km;
             int pMin = (int)paceMinPerKm;
@@ -41,8 +46,9 @@ public partial class CardioPage : ContentPage
             Logs.Insert(0, new CardioLog
             {
                 Date = $"{DpDate.Date:yyyy-MM-dd}",
-                Info = string.IsNullOrWhiteSpace(EntryNotes.Text) ? $"{min:F0} min · Sin notas" : $"{min:F0} min · {EntryNotes.Text}",
-                Dist = $"{km:F0} km",
+                // Usamos 0.## en lugar de F0 para que respete los decimales
+                Info = string.IsNullOrWhiteSpace(EntryNotes.Text) ? $"{min:0.##} min · Sin notas" : $"{min:0.##} min · {EntryNotes.Text}",
+                Dist = $"{km:0.##} km",
                 RawDist = km,
                 Pace = $"{pMin}:{pSec:D2}/km"
             });
@@ -58,8 +64,11 @@ public partial class CardioPage : ContentPage
 
     private void UpdateDashboard(double newKm, int pMin, int pSec)
     {
-        double.TryParse(LblTotalKm.Text, out double currentTotal);
-        LblTotalKm.Text = $"{currentTotal + newKm:F0}";
+        // Leemos el total actual respetando decimales para no perder distancia real
+        double.TryParse(LblTotalKm.Text?.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double currentTotal);
+
+        // Sumamos y mostramos con el formato 0.##
+        LblTotalKm.Text = $"{currentTotal + newKm:0.##}";
         LblTotalSes.Text = $"{Logs.Count}";
         LblAvgPace.Text = $"{pMin}:{pSec:D2}";
     }
@@ -83,7 +92,8 @@ public partial class CardioPage : ContentPage
 
             var barLayout = new VerticalStackLayout { VerticalOptions = LayoutOptions.End, HorizontalOptions = LayoutOptions.Fill };
 
-            var lblVal = new Label { Text = recentLogs[i].RawDist.ToString("F0"), FontSize = 10, TextColor = Colors.White, HorizontalOptions = LayoutOptions.Center };
+            // Modificado para que la etiqueta de la gráfica también muestre los decimales exactos
+            var lblVal = new Label { Text = recentLogs[i].RawDist.ToString("0.##", CultureInfo.InvariantCulture), FontSize = 10, TextColor = Colors.White, HorizontalOptions = LayoutOptions.Center };
             var box = new Border
             {
                 BackgroundColor = Color.FromArgb("#10B981"),

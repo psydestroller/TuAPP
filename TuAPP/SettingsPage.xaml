@@ -7,6 +7,7 @@
         <VerticalStackLayout Spacing="25">
             <Label Text="Ajustes" FontSize="26" FontAttributes="Bold" TextColor="White"/>
 
+            <!-- LO QUE YA TENÍAS: CONFIGURACIÓN DEL BOXEO -->
             <Label Text="CONFIGURACIÓN DEL PERFIL (BOXEO CLÁSICO)" FontSize="12" TextColor="{StaticResource AccentColor}" FontAttributes="Bold"/>
             <Border Padding="15">
                 <Border.StrokeShape>
@@ -61,6 +62,21 @@
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Text="Vibración" TextColor="White" VerticalOptions="Center"/>
                         <Switch x:Name="SwVib" Grid.Column="1" OnColor="{StaticResource WorkColor}" Toggled="OnTogglesChanged"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- NUEVO APARTADO: RECORDATORIO DE ENTRENAMIENTO -->
+            <Label Text="RECORDATORIO DIARIO" FontSize="12" TextColor="{StaticResource AccentColor}" FontAttributes="Bold"/>
+            <Border Padding="15">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="¿A qué hora entrenas? Te avisaremos 30 min antes:" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                        <TimePicker Grid.Column="0" x:Name="TpReminder" BackgroundColor="#27272A" TextColor="White" HeightRequest="40" FontAttributes="Bold"/>
+                        <Button Grid.Column="1" Text="Activar" BackgroundColor="{StaticResource WorkColor}" TextColor="Black" FontAttributes="Bold" CornerRadius="6" Padding="15,0" Clicked="OnSaveReminder"/>
                     </Grid>
                 </VerticalStackLayout>
             </Border>

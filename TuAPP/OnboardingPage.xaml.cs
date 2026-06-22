@@ -1,3 +1,4 @@
+using System.Globalization;
 using TuAPP.Models;
 using TuAPP.Services;
 
@@ -10,27 +11,31 @@ public partial class OnboardingPage : ContentPage
         InitializeComponent();
     }
 
-    private void OnStartClicked(object sender, EventArgs e)
+    private async void OnComenzarClicked(object sender, EventArgs e)
     {
-        double.TryParse(EntryWeight.Text, out double weight);
+        double.TryParse(EntryWeight.Text?.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double w);
+        double.TryParse(EntryHeight.Text?.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double h);
         int.TryParse(EntryAge.Text, out int age);
 
         var profile = new AthleteProfile
         {
             Name = string.IsNullOrWhiteSpace(EntryName.Text) ? "Atleta" : EntryName.Text,
-            WeightKg = weight > 0 ? weight : 66.0,
+            WeightKg = w > 0 ? w : 66.0,
+            HeightCm = h > 0 ? h : 170.0,
             Age = age > 0 ? age : 18
         };
-
         StorageService.SaveProfile(profile);
 
-        // CORRECCIÓN 1: La llave coincide exactamente con App.xaml.cs
-        Preferences.Set("IsFirstLaunch", false);
+        var fight = new FightEvent { Date = DateTime.Today.AddDays(30), TargetWeightKg = w > 0 ? w : 66.0 };
+        StorageService.SaveFightEvent(fight);
 
-        // CORRECCIÓN 2: Navegación moderna y segura para .NET MAUI
-        if (Application.Current?.Windows.Count > 0)
+        if (TpTrainingTime != null)
         {
-            Application.Current.Windows[0].Page = new AppShell();
+            TimeSpan safeTime = TpTrainingTime.Time is TimeSpan ts ? ts : new TimeSpan(17, 0, 0);
+            await NotificationService.RequestAndScheduleAsync(safeTime);
         }
+
+        Preferences.Set("IsFirstLaunch", false);
+        Application.Current!.MainPage = new AppShell();
     }
 }

@@ -1,69 +1,70 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TuAPP.CardioPage" BackgroundColor="{StaticResource BackgroundColor}">
+             x:Class="TuAPP.CardioPage"
+             BackgroundColor="#09090B">
 
-    <Grid RowDefinitions="Auto, *, Auto" Padding="20">
+    <Grid RowDefinitions="Auto, *">
 
-        <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,20">
-            <VerticalStackLayout>
-                <Label Text="Cardio" FontSize="26" FontAttributes="Bold" TextColor="White"/>
-                <Label Text="Historial de carreras" FontSize="14" TextColor="{StaticResource SubtitleColor}"/>
-            </VerticalStackLayout>
-            <Button x:Name="BtnAgregar" Grid.Column="1" Text="+ Agregar" BorderColor="#27272A" BorderWidth="1" BackgroundColor="Transparent" TextColor="White" CornerRadius="8" HeightRequest="40" Padding="15,0" Clicked="OnToggleFormClicked"/>
-        </Grid>
+        <VerticalStackLayout Grid.Row="0" Padding="20,20,20,10" Spacing="15">
+            <Grid ColumnDefinitions="*, Auto">
+                <Label Text="Cardio" FontSize="28" FontAttributes="Bold" TextColor="White"/>
+                <Button Grid.Column="1" x:Name="BtnAgregar" Text="+ Agregar" Clicked="OnToggleFormClicked" BackgroundColor="#18181B" TextColor="White" CornerRadius="8" HeightRequest="40"/>
+            </Grid>
+            <Label Text="Historial de carreras" TextColor="#A1A1AA" Margin="0,-10,0,0"/>
 
-        <VerticalStackLayout x:Name="ViewHistory" Grid.Row="1" Spacing="20">
-            <Border Padding="15" BackgroundColor="{StaticResource CardBackground}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
-                </Border.StrokeShape>
-                <Grid ColumnDefinitions="*, *, *">
-                    <VerticalStackLayout HorizontalOptions="Center">
-                        <Label Text="Total km" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-                        <Label x:Name="LblTotalKm" Text="0" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
+            <Border BackgroundColor="#18181B" Padding="20" StrokeShape="RoundRectangle 12" StrokeThickness="0">
+                <Grid ColumnDefinitions="*,*,*">
+                    <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
+                        <Label Text="Total km" TextColor="#A1A1AA" FontSize="12" HorizontalOptions="Center"/>
+                        <Label x:Name="LblTotalKm" Text="0" TextColor="#10B981" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
-                        <Label Text="Sesiones" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-                        <Label x:Name="LblTotalSes" Text="0" FontSize="22" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                        <Label Text="Sesiones" TextColor="#A1A1AA" FontSize="12" HorizontalOptions="Center"/>
+                        <Label x:Name="LblTotalSes" Text="0" TextColor="White" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
-                        <Label Text="Ritmo prom." FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-                        <Label x:Name="LblAvgPace" Text="--:--" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource PrepColor}" HorizontalOptions="Center"/>
+                        <Label Text="Ritmo prom." TextColor="#A1A1AA" FontSize="12" HorizontalOptions="Center"/>
+                        <Label x:Name="LblAvgPace" Text="0:00" TextColor="#EAB308" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Grid>
             </Border>
 
-            <Border Padding="15" BackgroundColor="{StaticResource CardBackground}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
-                </Border.StrokeShape>
+            <Border BackgroundColor="#18181B" Padding="15" StrokeShape="RoundRectangle 12" StrokeThickness="0">
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Últimas sesiones (km)" FontSize="14" TextColor="{StaticResource SubtitleColor}"/>
-                    <Grid x:Name="ChartGrid" HeightRequest="80" ColumnSpacing="10" VerticalOptions="End">
-                    </Grid>
+                    <Label Text="Últimas sesiones (km)" TextColor="#A1A1AA" FontSize="12"/>
+                    <Grid x:Name="ChartGrid" HeightRequest="80" ColumnSpacing="5" VerticalOptions="End"/>
                 </VerticalStackLayout>
             </Border>
+        </VerticalStackLayout>
 
-            <CollectionView x:Name="ListCardio">
+        <ScrollView Grid.Row="1" x:Name="FormAdd" IsVisible="False" Padding="20,10">
+            <VerticalStackLayout Spacing="15">
+                <Label Text="Nueva sesión" TextColor="White" FontAttributes="Bold"/>
+                <DatePicker x:Name="DpDate" BackgroundColor="#18181B" TextColor="White"/>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                    <Entry Grid.Column="0" x:Name="EntryKm" Placeholder="Distancia (km)" Keyboard="Numeric" BackgroundColor="#18181B" TextColor="White"/>
+                    <Entry Grid.Column="1" x:Name="EntryMin" Placeholder="Tiempo (min)" Keyboard="Numeric" BackgroundColor="#18181B" TextColor="White"/>
+                </Grid>
+                <Entry x:Name="EntryNotes" Placeholder="Notas (opcional)" BackgroundColor="#18181B" TextColor="White"/>
+                <Button Text="Guardar Carrera" Clicked="OnSaveLog" BackgroundColor="#10B981" TextColor="White" FontAttributes="Bold" CornerRadius="8" HeightRequest="50" Margin="0,10,0,0"/>
+            </VerticalStackLayout>
+        </ScrollView>
+        
+        <Grid Grid.Row="1" x:Name="ViewHistory">
+            <CollectionView x:Name="ListCardio" Margin="20,0,20,20">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border BackgroundColor="{StaticResource CardBackground}" Margin="0,5" Padding="15">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10"/>
-                            </Border.StrokeShape>
+                        <Border BackgroundColor="#18181B" Margin="0,0,0,10" Padding="15" StrokeShape="RoundRectangle 8" StrokeThickness="0">
                             <Grid ColumnDefinitions="*, Auto">
                                 <VerticalStackLayout>
-                                    <Label Text="{Binding Date}" FontSize="12" TextColor="{StaticResource SubtitleColor}"/>
-                                    <Label Text="{Binding Info}" FontSize="14" TextColor="White"/>
+                                    <Label Text="{Binding Date}" TextColor="#A1A1AA" FontSize="12"/>
+                                    <Label Text="{Binding Info}" TextColor="White" FontSize="14" FontAttributes="Bold" Margin="0,2,0,0"/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" VerticalOptions="Center">
-                                    <Label Text="{Binding Dist}" FontSize="18" FontAttributes="Bold" TextColor="White" HorizontalOptions="End"/>
-                                    <Border BackgroundColor="#064E3B" Padding="6,2" HorizontalOptions="End" Margin="0,4,0,0">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="4"/>
-                                        </Border.StrokeShape>
-                                        <Label Text="{Binding Pace}" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource WorkColor}"/>
+                                    <Label Text="{Binding Dist}" TextColor="White" FontSize="18" FontAttributes="Bold" HorizontalOptions="End"/>
+                                    <Border BackgroundColor="#064E3B" Padding="6,2" StrokeShape="RoundRectangle 4" StrokeThickness="0" HorizontalOptions="End" Margin="0,2,0,0">
+                                        <Label Text="{Binding Pace}" TextColor="#10B981" FontSize="10" FontAttributes="Bold"/>
                                     </Border>
                                 </VerticalStackLayout>
                             </Grid>
@@ -71,29 +72,7 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </VerticalStackLayout>
+        </Grid>
 
-        <VerticalStackLayout x:Name="FormAdd" Grid.Row="1" IsVisible="False" Spacing="20">
-            <Label Text="Nueva Carrera" FontSize="20" FontAttributes="Bold" TextColor="White"/>
-            <VerticalStackLayout Spacing="5">
-                <Label Text="Fecha" TextColor="{StaticResource SubtitleColor}"/>
-                <DatePicker x:Name="DpDate" BackgroundColor="#27272A" TextColor="White"/>
-            </VerticalStackLayout>
-            <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="Distancia (km)" TextColor="{StaticResource SubtitleColor}"/>
-                    <Entry x:Name="EntryKm" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
-                </VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="1" Spacing="5">
-                    <Label Text="Tiempo (min)" TextColor="{StaticResource SubtitleColor}"/>
-                    <Entry x:Name="EntryMin" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
-                </VerticalStackLayout>
-            </Grid>
-            <VerticalStackLayout Spacing="5">
-                <Label Text="Notas" TextColor="{StaticResource SubtitleColor}"/>
-                <Entry x:Name="EntryNotes" Placeholder="Ej: Sin notas..." BackgroundColor="#27272A" TextColor="White"/>
-            </VerticalStackLayout>
-            <Button Text="Guardar carrera" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="10" HeightRequest="50" Clicked="OnSaveLog"/>
-        </VerticalStackLayout>
     </Grid>
 </ContentPage>

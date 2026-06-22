@@ -1,3 +1,5 @@
+using TuAPP.Services;
+
 namespace TuAPP;
 
 public partial class SettingsPage : ContentPage
@@ -33,6 +35,11 @@ public partial class SettingsPage : ContentPage
         SwSound.IsToggled = Preferences.Get("UseSound", true);
         SwVib.IsToggled = Preferences.Get("UseVibration", true);
         SwScreen.IsToggled = Preferences.Get("KeepScreenOn", true);
+
+        // NUEVO: Cargar la hora de recordatorio guardada previamente (o 5:00 PM por defecto)
+        string savedReminder = Preferences.Get("SavedReminderTime", "17:00:00");
+        if (TimeSpan.TryParse(savedReminder, out TimeSpan ts)) TpReminder.Time = ts;
+        else TpReminder.Time = new TimeSpan(17, 0, 0);
     }
 
     private void OnSettingsChanged(object? sender, EventArgs e)
@@ -50,5 +57,19 @@ public partial class SettingsPage : ContentPage
         Preferences.Set("UseSound", SwSound.IsToggled);
         Preferences.Set("UseVibration", SwVib.IsToggled);
         Preferences.Set("KeepScreenOn", SwScreen.IsToggled);
+    }
+
+    // NUEVO EVENTO: Guarda en memoria y activa la alarma de Android
+    private async void OnSaveReminder(object? sender, EventArgs e)
+    {
+        if (TpReminder != null)
+        {
+            TimeSpan safeTime = TpReminder.Time is TimeSpan ts ? ts : new TimeSpan(17, 0, 0);
+
+            Preferences.Set("SavedReminderTime", safeTime.ToString());
+
+            await NotificationService.RequestAndScheduleAsync(safeTime);
+            await DisplayAlert("Recordatorio Activado", "Te avisaremos 30 minutos antes para que prepares tus vendas.", "OK");
+        }
     }
 }

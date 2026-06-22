@@ -52,6 +52,7 @@ public class AthleteProfile
 
     // EDAD RESTAURADA PARA EL ONBOARDING
     public int Age { get; set; } = 17;
+    public double HeightCm { get; set; } = 170.0;
 
     public string BoxingCategory => WeightKg switch
     {

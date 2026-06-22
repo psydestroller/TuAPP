@@ -120,4 +120,12 @@ public class TimerForegroundService : Service
         var nm = (NotificationManager?)GetSystemService(NotificationService);
         nm?.CreateNotificationChannel(channel);
     }
+    // Este evento se dispara cuando cierras la app deslizándola en las apps recientes
+    public override void OnTaskRemoved(Intent? rootIntent)
+    {
+        base.OnTaskRemoved(rootIntent);
+        _isRunning = false;
+        StopForeground(StopForegroundFlags.Remove);
+        StopSelf();
+    }
 }
