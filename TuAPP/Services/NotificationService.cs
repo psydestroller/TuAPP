@@ -44,7 +44,17 @@ public static class NotificationService
         {
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                await Application.Current!.MainPage!.DisplayAlert("Permiso Denegado", "No podremos avisarte de tu entrenamiento. Ve a Ajustes para activarlo si cambias de opinión.", "Entendido");
+                bool abrirAjustes = await Application.Current!.MainPage!.DisplayAlert(
+                    "Notificaciones Desactivadas",
+                    "Sin este permiso no recibirás el recordatorio diario ni el aviso de vendas. ¿Quieres activarlo ahora en los ajustes de tu celular?",
+                    "Ir a Ajustes",
+                    "Ahora no"
+                );
+
+                if (abrirAjustes)
+                {
+                    AppInfo.Current.ShowSettingsUI();
+                }
             });
         }
     }

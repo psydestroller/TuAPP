@@ -7,7 +7,6 @@
         <VerticalStackLayout Spacing="25">
             <Label Text="Ajustes" FontSize="26" FontAttributes="Bold" TextColor="White"/>
 
-            <!-- LO QUE YA TENÍAS: CONFIGURACIÓN DEL BOXEO -->
             <Label Text="CONFIGURACIÓN DEL PERFIL (BOXEO CLÁSICO)" FontSize="12" TextColor="{StaticResource AccentColor}" FontAttributes="Bold"/>
             <Border Padding="15">
                 <Border.StrokeShape>
@@ -66,7 +65,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- NUEVO APARTADO: RECORDATORIO DE ENTRENAMIENTO -->
+            <!-- APARTADO BLINDADO: RECORDATORIO CON BOTONES ACTIVAR / DESACTIVAR -->
             <Label Text="RECORDATORIO DIARIO" FontSize="12" TextColor="{StaticResource AccentColor}" FontAttributes="Bold"/>
             <Border Padding="15">
                 <Border.StrokeShape>
@@ -74,9 +73,10 @@
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="10">
                     <Label Text="¿A qué hora entrenas? Te avisaremos 30 min antes:" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
-                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                    <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10">
                         <TimePicker Grid.Column="0" x:Name="TpReminder" BackgroundColor="#27272A" TextColor="White" HeightRequest="40" FontAttributes="Bold"/>
                         <Button Grid.Column="1" Text="Activar" BackgroundColor="{StaticResource WorkColor}" TextColor="Black" FontAttributes="Bold" CornerRadius="6" Padding="15,0" Clicked="OnSaveReminder"/>
+                        <Button Grid.Column="2" Text="Desactivar" BackgroundColor="#EF4444" TextColor="White" FontAttributes="Bold" CornerRadius="6" Padding="15,0" Clicked="OnCancelReminder"/>
                     </Grid>
                 </VerticalStackLayout>
             </Border>

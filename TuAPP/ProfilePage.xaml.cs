@@ -32,7 +32,8 @@ public partial class ProfilePage : ContentPage
         if (heightM > 0)
         {
             double imc = profile.WeightKg / (heightM * heightM);
-            LblImc.Text = imc.ToString("0.1", CultureInfo.InvariantCulture);
+            // CORRECCIÓN: "F1" obliga a mostrar un solo decimal real, ej. 21.4
+            LblImc.Text = imc.ToString("F1", CultureInfo.InvariantCulture);
         }
         else LblImc.Text = "--";
 

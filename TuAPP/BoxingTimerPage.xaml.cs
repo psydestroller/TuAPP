@@ -12,9 +12,10 @@ public partial class BoxingTimerPage : ContentPage
     private int _currentRound = 1, _timeLeft, _currentMaxTime;
     private bool _isTimerRunning = false;
     private IAudioPlayer? _bellPlayer;
-
-    // EL SECRETO: El "Reloj Atómico" de C# que ignora el lag de Android
     private DateTime _phaseEndTime;
+
+    // CANDADO ANTI-BUGS: Evita que el entrenamiento se guarde doble si el usuario espamea el botón Skip
+    private bool _isSaving = false;
 
     public BoxingTimerPage()
     {
@@ -33,7 +34,6 @@ public partial class BoxingTimerPage : ContentPage
         catch { }
     }
 
-    // 1. GESTIÓN LIMPIA DE MEMORIA (Evita que se dupliquen los ticks al abrir/cerrar)
     protected override void OnAppearing()
     {
         base.OnAppearing();
@@ -62,15 +62,12 @@ public partial class BoxingTimerPage : ContentPage
         ForegroundTimerBridge.OnServiceStop -= HandleServiceStop;
     }
 
-    // 2. RECEPCIÓN BLINDADA CON RELOJ DE HARDWARE
     private void HandleServiceTick(int secondsLeft, string phase)
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
             if (!_isTimerRunning) return;
 
-            // En lugar de creerle a Android (que se salta números), calculamos 
-            // la distancia exacta contra el reloj de cuarzo del procesador:
             int atomicSecondsLeft = (int)Math.Ceiling((_phaseEndTime - DateTime.Now).TotalSeconds);
 
             if (atomicSecondsLeft <= 0)
@@ -115,7 +112,6 @@ public partial class BoxingTimerPage : ContentPage
             }
             else
             {
-                // Al reanudar, recalculamos la hora de finalización en el futuro real
                 _phaseEndTime = DateTime.Now.AddSeconds(_timeLeft);
                 ForegroundTimerBridge.Resume();
             }
@@ -126,7 +122,6 @@ public partial class BoxingTimerPage : ContentPage
         UpdateUI();
     }
 
-    // 3. LÓGICA DE SKIP REPARADA (Cero desincronizaciones)
     private void AdvanceState()
     {
         if (_currentState == TimerState.Prep || _currentState == TimerState.Rest)
@@ -176,7 +171,6 @@ public partial class BoxingTimerPage : ContentPage
         }
         else
         {
-            // Si el usuario dio Skip en PAUSA, obligamos a Android a quedarse callado
             ForegroundTimerBridge.Stop();
         }
 
@@ -185,6 +179,9 @@ public partial class BoxingTimerPage : ContentPage
 
     private void SaveWorkout()
     {
+        if (_isSaving) return;
+        _isSaving = true;
+
         string selected = PckWorkoutType.SelectedItem?.ToString() ?? "Classic boxing 🥊";
         WorkoutType currentWorkoutType = WorkoutType.ClassicBoxing;
         if (selected.Contains("Sombra")) currentWorkoutType = WorkoutType.Shadow;
@@ -200,7 +197,7 @@ public partial class BoxingTimerPage : ContentPage
         {
             Type = currentWorkoutType,
             TotalRounds = _cfgRounds,
-            RoundsCompleted = _currentRound, // Arreglado: ahora guarda las rondas reales que hiciste
+            RoundsCompleted = _currentRound,
             TotalSeconds = totalSecs,
             CaloriesBurned = calsBurned,
             Notes = "Guardado automático"
@@ -208,6 +205,7 @@ public partial class BoxingTimerPage : ContentPage
         StorageService.AddWorkoutSession(session);
 
         Navigation.PushModalAsync(new WorkoutSummaryPage(session));
+        _isSaving = false;
     }
 
     private void OnResetClicked(object? sender, EventArgs e)
@@ -226,9 +224,14 @@ public partial class BoxingTimerPage : ContentPage
         _isTimerRunning = false;
         _currentState = TimerState.Idle;
         _currentRound = 1;
+
+        // FIX DEL ARCO VACÍO: Al igualar el tiempo restante al máximo de trabajo, el gráfico calcula 100%
         _timeLeft = _cfgWork;
         _currentMaxTime = _cfgWork;
-        DeviceDisplay.Current.KeepScreenOn = false;
+
+        if (DeviceInfo.Platform == DevicePlatform.Android || DeviceInfo.Platform == DevicePlatform.iOS)
+            DeviceDisplay.Current.KeepScreenOn = false;
+
         UpdateUI();
     }
 

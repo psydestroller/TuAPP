@@ -36,7 +36,6 @@ public partial class SettingsPage : ContentPage
         SwVib.IsToggled = Preferences.Get("UseVibration", true);
         SwScreen.IsToggled = Preferences.Get("KeepScreenOn", true);
 
-        // NUEVO: Cargar la hora de recordatorio guardada previamente (o 5:00 PM por defecto)
         string savedReminder = Preferences.Get("SavedReminderTime", "17:00:00");
         if (TimeSpan.TryParse(savedReminder, out TimeSpan ts)) TpReminder.Time = ts;
         else TpReminder.Time = new TimeSpan(17, 0, 0);
@@ -59,7 +58,6 @@ public partial class SettingsPage : ContentPage
         Preferences.Set("KeepScreenOn", SwScreen.IsToggled);
     }
 
-    // NUEVO EVENTO: Guarda en memoria y activa la alarma de Android
     private async void OnSaveReminder(object? sender, EventArgs e)
     {
         if (TpReminder != null)
@@ -71,5 +69,17 @@ public partial class SettingsPage : ContentPage
             await NotificationService.RequestAndScheduleAsync(safeTime);
             await DisplayAlert("Recordatorio Activado", "Te avisaremos 30 minutos antes para que prepares tus vendas.", "OK");
         }
+    }
+
+    // FIX 3 COMPLETADO: Aniquila las alarmas en Android y limpia la memoria
+    private void OnCancelReminder(object? sender, EventArgs e)
+    {
+#if ANDROID
+        TuAPP.Platforms.Android.AlarmScheduler.CancelDaily(101);
+        TuAPP.Platforms.Android.AlarmScheduler.CancelDaily(102);
+#endif
+
+        Preferences.Remove("SavedReminderTime");
+        DisplayAlert("Recordatorio Desactivado", "Ya no recibirás avisos diarios de entrenamiento en segundo plano.", "OK");
     }
 }
