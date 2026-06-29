@@ -1,4 +1,54 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="456" height="456" viewBox="0 0 456 456" version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="0" width="456" height="456" fill="#512BD4" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Degradado de fondo elegante -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181B" />
+      <stop offset="100%" stop-color="#09090B" />
+    </linearGradient>
+    
+    <!-- Degradado del cronómetro activo (Verde Esmeralda a Amarillo) -->
+    <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#EAB308" />
+    </linearGradient>
+
+    <!-- Efecto de resplandor neón para el anillo -->
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- 1. Fondo Squircle nativo de Android -->
+  <rect width="512" height="512" rx="116" fill="url(#bgGrad)" />
+
+  <!-- 2. Hardware superior del cronómetro (Corona y pulsadores) -->
+  <rect x="236" y="28" width="40" height="24" rx="6" fill="#71717A" />
+  <path d="M 206 28 C 206 2, 306 2, 306 28" fill="none" stroke="#71717A" stroke-width="14" stroke-linecap="round" />
+  <line x1="375" y1="95" x2="405" y2="65" stroke="#71717A" stroke-width="18" stroke-linecap="round" />
+  <line x1="137" y1="95" x2="107" y2="65" stroke="#71717A" stroke-width="18" stroke-linecap="round" />
+
+  <!-- 3. Track de fondo del dial (Gris tenue) -->
+  <circle cx="256" cy="286" r="150" fill="none" stroke="#27272A" stroke-width="22" />
+
+  <!-- 4. Arco de progreso activo (Calculado al 75% exacto de la circunferencia) -->
+  <circle cx="256" cy="286" r="150" fill="none" stroke="url(#arcGrad)" stroke-width="22" stroke-linecap="round" stroke-dasharray="707 942" transform="rotate(-90 256 286)" filter="url(#neonGlow)" />
+
+  <!-- 5. Marcas cardinales del dial -->
+  <line x1="256" y1="156" x2="256" y2="168" stroke="#52525B" stroke-width="6" stroke-linecap="round" />
+  <line x1="256" y1="404" x2="256" y2="416" stroke="#52525B" stroke-width="6" stroke-linecap="round" />
+  <line x1="126" y1="286" x2="138" y2="286" stroke="#52525B" stroke-width="6" stroke-linecap="round" />
+  <line x1="374" y1="286" x2="386" y2="286" stroke="#52525B" stroke-width="6" stroke-linecap="round" />
+
+  <!-- 6. Guante de Boxeo Centro-Dinamico -->
+  <g transform="translate(11, 10)">
+    <!-- Cuerpo principal (Blanco puro) -->
+    <path d="M270 180 C325 180 350 215 340 270 C332 315 295 330 260 330 L210 330 C185 330 175 315 175 290 L175 240 C175 205 200 180 235 180 Z" fill="#FFFFFF" />
+    <!-- Pulgar de guardia (Verde Esmeralda) -->
+    <path d="M175 240 C150 240 140 260 145 285 C150 310 165 320 185 325 Z" fill="#10B981" />
+    <!-- Cierre de velcro (Amarillo vibrante) -->
+    <rect x="195" y="338" width="80" height="22" rx="6" fill="#EAB308" />
+    <!-- Sombra interna de volumen -->
+    <path d="M240 200 C265 200 285 215 280 245" stroke="#09090B" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.12" />
+  </g>
 </svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <g transform="translate(256, 256)">
+    <!-- Dientes del engranaje (Rotaciones matemáticas exactas a 45 grados) -->
+    <rect x="-32" y="-226" width="64" height="452" rx="16" fill="#FFFFFF" />
+    <rect x="-32" y="-226" width="64" height="452" rx="16" fill="#FFFFFF" transform="rotate(45)" />
+    <rect x="-32" y="-226" width="64" height="452" rx="16" fill="#FFFFFF" transform="rotate(90)" />
+    <rect x="-32" y="-226" width="64" height="452" rx="16" fill="#FFFFFF" transform="rotate(135)" />
+
+    <!-- Anillo principal sólido -->
+    <circle cx="0" cy="0" r="168" fill="#FFFFFF" />
+    
+    <!-- Perforación central (Gris Zinc acento) -->
+    <circle cx="0" cy="0" r="88" fill="#27272A" />
+    <circle cx="0" cy="0" r="40" fill="#A1A1AA" />
+  </g>
+</svg>

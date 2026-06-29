@@ -11,31 +11,27 @@
     TabBarUnselectedColor="#A1A1AA">
 
     <TabBar>
-        <Tab Title="Cronómetro" Icon="dotnet_bot.png">
+        <Tab Title="Cronómetro" Icon="cronometro.png">
             <ShellContent ContentTemplate="{DataTemplate local:BoxingTimerPage}" />
         </Tab>
 
-        <Tab Title="Sprints" Icon="dotnet_bot.png">
+        <Tab Title="Sprints" Icon="sprints.png">
             <ShellContent ContentTemplate="{DataTemplate local:SprintsPage}" />
         </Tab>
 
-        <Tab Title="IMC" Icon="dotnet_bot.png">
+        <Tab Title="IMC" Icon="imc.png">
             <ShellContent ContentTemplate="{DataTemplate local:IMCpage}" />
         </Tab>
-        
-        <Tab Title="Cardio" Icon="dotnet_bot.png">
-            <ShellContent ContentTemplate="{DataTemplate local:CardioPage}" />
-        </Tab>
 
-        <Tab Title="Preparación" Icon="dotnet_bot.png">
+        <Tab Title="Preparación" Icon="preparacion.png">
             <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
         </Tab>
 
-        <Tab Title="Perfil" Icon="dotnet_bot.png">
+        <Tab Title="Perfil" Icon="perfil.png">
             <ShellContent ContentTemplate="{DataTemplate local:ProfilePage}" />
         </Tab>
 
-        <Tab Title="Ajustes" Icon="dotnet_bot.png">
+        <Tab Title="Ajustes" Icon="configuracion.png">
             <ShellContent ContentTemplate="{DataTemplate local:SettingsPage}" />
         </Tab>
     </TabBar>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Corona superior -->
+  <rect x="220" y="32" width="72" height="36" rx="10" fill="#A1A1AA" />
+  <!-- Pulsadores diagonales -->
+  <line x1="365" y1="125" x2="405" y2="85" stroke="#A1A1AA" stroke-width="32" stroke-linecap="round" />
+  <line x1="147" y1="125" x2="107" y2="85" stroke="#A1A1AA" stroke-width="32" stroke-linecap="round" />
+  
+  <!-- Cuerpo exterior del cronómetro -->
+  <circle cx="256" cy="286" r="176" fill="none" stroke="#FFFFFF" stroke-width="36" />
+  
+  <!-- Sub-dial interno sutil -->
+  <circle cx="256" cy="286" r="126" fill="none" stroke="#27272A" stroke-width="12" stroke-dasharray="16 16" />
+  
+  <!-- Marcadores cardinales -->
+  <line x1="256" y1="140" x2="256" y2="170" stroke="#71717A" stroke-width="18" stroke-linecap="round" />
+  <line x1="256" y1="402" x2="256" y2="432" stroke="#71717A" stroke-width="18" stroke-linecap="round" />
+  <line x1="125" y1="286" x2="155" y2="286" stroke="#71717A" stroke-width="18" stroke-linecap="round" />
+  <line x1="357" y1="286" x2="387" y2="286" stroke="#71717A" stroke-width="18" stroke-linecap="round" />
+  
+  <!-- Centro y aguja activa (Verde Esmeralda) -->
+  <line x1="256" y1="286" x2="340" y2="180" stroke="#10B981" stroke-width="28" stroke-linecap="round" />
+  <circle cx="256" cy="286" r="22" fill="#10B981" />
+</svg>

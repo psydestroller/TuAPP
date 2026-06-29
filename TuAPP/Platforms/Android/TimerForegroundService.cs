@@ -96,7 +96,7 @@ public class TimerForegroundService : Service
         return new NotificationCompat.Builder(this, ChannelId)
             .SetContentTitle($"🥊 {_phaseLabel}")
             .SetContentText($"{min:D2}:{sec:D2}")
-            .SetSmallIcon(Resource.Drawable.dotnet_bot)
+            .SetSmallIcon(Resource.Mipmap.appicon)
             .SetContentIntent(openPending)
             .SetOngoing(true)
             .SetOnlyAlertOnce(true)

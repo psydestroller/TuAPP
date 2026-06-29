@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Estela de velocidad explosiva (Amarillo Campamento) -->
+  <line x1="56" y1="200" x2="166" y2="200" stroke="#EAB308" stroke-width="32" stroke-linecap="round" />
+  <line x1="32" y1="286" x2="142" y2="286" stroke="#EAB308" stroke-width="32" stroke-linecap="round" />
+  <line x1="72" y1="372" x2="182" y2="372" stroke="#EAB308" stroke-width="32" stroke-linecap="round" />
+
+  <!-- Extremidades traseras (Gris Zinc para dar profundidad espacial) -->
+  <path d="M290 230 L210 210 L170 260" fill="none" stroke="#71717A" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M250 310 L180 390 L110 360" fill="none" stroke="#71717A" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Cuerpo principal del atleta (Blanco Puro) -->
+  <!-- Cabeza aerodinámica -->
+  <circle cx="370" cy="116" r="38" fill="#FFFFFF" />
+  <!-- Torso inclinando hacia adelante -->
+  <path d="M330 170 L250 310" stroke="#FFFFFF" stroke-width="48" stroke-linecap="round" />
+  <!-- Brazo delantero impulsando -->
+  <path d="M310 200 L390 230 L430 170" fill="none" stroke="#FFFFFF" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Pierna delantera atacando el asfalto -->
+  <path d="M250 310 L350 380 L340 466" fill="none" stroke="#FFFFFF" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
