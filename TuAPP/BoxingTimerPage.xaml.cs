@@ -11,27 +11,59 @@ public partial class BoxingTimerPage : ContentPage
     private int _cfgRounds, _cfgWork, _cfgRest, _cfgPrep;
     private int _currentRound = 1, _timeLeft, _currentMaxTime;
     private bool _isTimerRunning = false;
-    private IAudioPlayer? _bellPlayer;
     private bool _isSaving = false;
 
-    // NUEVO: Candado Anti-Glitch para evitar que se bugee si skipeas muy rápido
+    // GESTOR DE AUDIO DINÁMICO: Almacena los 7 sonidos listos en memoria
+    private readonly Dictionary<string, IAudioPlayer> _audioPlayers = new();
+
+    // Candado Anti-Glitch para evitar que se bugee si skipeas muy rápido
     private DateTime _lastTransitionTime = DateTime.MinValue;
+    private DateTime _phaseEndTime;
 
     public BoxingTimerPage()
     {
         InitializeComponent();
         ForegroundTimerBridge.Initialize();
-        LoadAudio();
+        LoadAllAudioFiles();
     }
 
-    private async void LoadAudio()
+    // 1. CARGA AUTOMÁTICA DE TODOS LOS SONIDOS (Campana + Alarmas 1 a 6)
+    private async void LoadAllAudioFiles()
     {
-        try
+        string[] soundFiles =
         {
-            var file = await FileSystem.OpenAppPackageFileAsync("bell.mp3");
-            _bellPlayer = AudioManager.Current.CreatePlayer(file);
+            "bell.mp3",
+            "alarma_1.mp3",
+            "alarma_2.mp3",
+            "alarma_3.mp3",
+            "alarma_4.mp3",
+            "alarma_5.mp3",
+            "alarma_6.mp3"
+        };
+
+        foreach (var sound in soundFiles)
+        {
+            try
+            {
+                var file = await FileSystem.OpenAppPackageFileAsync(sound);
+                var player = AudioManager.Current.CreatePlayer(file);
+                _audioPlayers[sound] = player;
+            }
+            catch { }
         }
-        catch { }
+    }
+
+    // 2. REPRODUCCIÓN POR PREFERENCIAS (Con sonido por defecto si no han configurado nada)
+    private void PlayConfiguredSound(string preferenceKey, string defaultSoundName)
+    {
+        if (!Preferences.Get("UseSound", true)) return;
+
+        string selectedSound = Preferences.Get(preferenceKey, defaultSoundName);
+
+        if (_audioPlayers.TryGetValue(selectedSound, out var player))
+        {
+            player.Play();
+        }
     }
 
     protected override void OnAppearing()
@@ -66,13 +98,26 @@ public partial class BoxingTimerPage : ContentPage
         {
             if (!_isTimerRunning) return;
 
-            // SINCRONIZACIÓN PERFECTA: La pantalla ya no calcula el tiempo, solo obedece a Android.
-            _timeLeft = secondsLeft;
-            UpdateUI();
+            int atomicSecondsLeft = (int)Math.Ceiling((_phaseEndTime - DateTime.Now).TotalSeconds);
 
-            if (_timeLeft <= 0)
+            if (atomicSecondsLeft <= 0)
             {
                 AdvanceState();
+            }
+            else
+            {
+                _timeLeft = atomicSecondsLeft;
+
+                // =====================================================================
+                // ALERTA 3: ÚLTIMOS 10 SEGUNDOS DEL ROUND (Default: alarma_2.mp3)
+                // =====================================================================
+                if (_timeLeft == 10 && _currentState == TimerState.Work)
+                {
+                    PlayConfiguredSound("Sound10Sec", "alarma_2.mp3");
+                }
+                // =====================================================================
+
+                UpdateUI();
             }
         });
     }
@@ -102,10 +147,18 @@ public partial class BoxingTimerPage : ContentPage
                 _currentMaxTime = _timeLeft;
                 if (_cfgPrep == 0) _currentState = TimerState.Work;
 
+                _phaseEndTime = DateTime.Now.AddSeconds(_timeLeft);
                 ForegroundTimerBridge.Start(_timeLeft, GetPhaseName(_currentState));
+
+                // =====================================================================
+                // ALERTA 1: INICIO DE PREPARACIÓN (Default: alarma_1.mp3)
+                // =====================================================================
+                PlayConfiguredSound("SoundPrep", "alarma_1.mp3");
+                // =====================================================================
             }
             else
             {
+                _phaseEndTime = DateTime.Now.AddSeconds(_timeLeft);
                 ForegroundTimerBridge.Resume();
             }
 
@@ -117,7 +170,7 @@ public partial class BoxingTimerPage : ContentPage
 
     private void AdvanceState()
     {
-        // CANDADO MILISEGUNDOS: Si presionaste Skip hace menos de 800ms, ignora el comando. (Evita el bug de multi-clicks)
+        // CANDADO MILISEGUNDOS: Si presionaste Skip hace menos de 800ms, ignora el comando
         if ((DateTime.Now - _lastTransitionTime).TotalMilliseconds < 800) return;
         _lastTransitionTime = DateTime.Now;
 
@@ -130,7 +183,12 @@ public partial class BoxingTimerPage : ContentPage
             if (_isTimerRunning)
             {
                 if (Preferences.Get("UseVibration", true)) AudioAndHapticService.VibrateRoundStart();
-                if (Preferences.Get("UseSound", true)) _bellPlayer?.Play();
+
+                // =====================================================================
+                // ALERTA 2: INICIO DE ROUND / ¡PELEA! (Default: bell.mp3)
+                // =====================================================================
+                PlayConfiguredSound("SoundRoundStart", "bell.mp3");
+                // =====================================================================
             }
         }
         else if (_currentState == TimerState.Work)
@@ -141,7 +199,7 @@ public partial class BoxingTimerPage : ContentPage
                 ForegroundTimerBridge.Stop();
                 DeviceDisplay.Current.KeepScreenOn = false;
 
-                if (Preferences.Get("UseSound", true)) _bellPlayer?.Play();
+                PlayConfiguredSound("SoundRoundEnd", "bell.mp3");
 
                 SaveWorkout();
                 ResetTimer();
@@ -156,9 +214,16 @@ public partial class BoxingTimerPage : ContentPage
             if (_isTimerRunning)
             {
                 if (Preferences.Get("UseVibration", true)) AudioAndHapticService.VibrateRoundEnd();
-                if (Preferences.Get("UseSound", true)) _bellPlayer?.Play();
+
+                // =====================================================================
+                // ALERTA 4: FIN DE ROUND / DESCANSAR (Default: bell.mp3)
+                // =====================================================================
+                PlayConfiguredSound("SoundRoundEnd", "bell.mp3");
+                // =====================================================================
             }
         }
+
+        _phaseEndTime = DateTime.Now.AddSeconds(_timeLeft);
 
         if (_isTimerRunning)
         {

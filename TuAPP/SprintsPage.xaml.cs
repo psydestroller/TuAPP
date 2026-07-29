@@ -1,4 +1,5 @@
 using Microsoft.Maui.Dispatching;
+using Plugin.Maui.Audio;
 
 namespace TuAPP;
 
@@ -9,6 +10,8 @@ public partial class SprintsPage : ContentPage
     private SprintState _currentState = SprintState.Idle;
     private int _timeLeft, _currentSet = 1, _cfgPrep, _cfgWork, _cfgRest, _cfgSets;
 
+    private IAudioPlayer? _sprintPlayer;
+
     public SprintsPage()
     {
         InitializeComponent();
@@ -16,6 +19,21 @@ public partial class SprintsPage : ContentPage
         _sprintTimer = Dispatcher.CreateTimer();
         _sprintTimer.Interval = TimeSpan.FromSeconds(1);
         _sprintTimer.Tick += OnSprintTimerTicked;
+    }
+
+    private async void PlaySprintSound(string prefKey, string defaultFile)
+    {
+        if (!Preferences.Get("UseSound", true)) return;
+
+        string filename = Preferences.Get(prefKey, defaultFile);
+        try
+        {
+            if (_sprintPlayer != null && _sprintPlayer.IsPlaying) _sprintPlayer.Stop();
+            var file = await FileSystem.OpenAppPackageFileAsync(filename);
+            _sprintPlayer = AudioManager.Current.CreatePlayer(file);
+            _sprintPlayer.Play();
+        }
+        catch { }
     }
 
     protected override void OnDisappearing()
@@ -62,7 +80,12 @@ public partial class SprintsPage : ContentPage
                 _currentSet = 1;
                 _currentState = _cfgPrep > 0 ? SprintState.Prep : SprintState.Sprint;
                 _timeLeft = _currentState == SprintState.Prep ? _cfgPrep : _cfgWork;
-                if (Preferences.Get("UseSound", true)) TextToSpeech.SpeakAsync("Preparación");
+
+                // INICIA EL PRIMER SONIDO DE LA RUTINA
+                if (_currentState == SprintState.Prep)
+                    PlaySprintSound("SoundSprintPrep", "alarma_3.mp3");
+                else
+                    PlaySprintSound("SoundSprintWork", "alarma_1.mp3"); // Cambiado a alarma 1
             }
             _sprintTimer.Start();
             if (Preferences.Get("KeepScreenOn", true)) DeviceDisplay.Current.KeepScreenOn = true;
@@ -73,6 +96,7 @@ public partial class SprintsPage : ContentPage
     }
 
     private void OnSkipClicked(object? sender, EventArgs e) { if (_currentState != SprintState.Idle) AdvanceState(); }
+
     private void OnResetClicked(object? sender, EventArgs e)
     {
         _sprintTimer.Stop();
@@ -97,14 +121,29 @@ public partial class SprintsPage : ContentPage
     {
         if (_currentState == SprintState.Prep || _currentState == SprintState.Rest)
         {
-            _currentState = SprintState.Sprint; _timeLeft = _cfgWork;
-            if (Preferences.Get("UseSound", true)) TextToSpeech.SpeakAsync("¡Fuego!");
+            _currentState = SprintState.Sprint;
+            _timeLeft = _cfgWork;
+
+            // SUENA EL ARRANQUE DEL SPRINT
+            PlaySprintSound("SoundSprintWork", "alarma_1.mp3"); // Cambiado a alarma 1
         }
         else if (_currentState == SprintState.Sprint)
         {
-            if (_currentSet >= _cfgSets) { OnResetClicked(this, EventArgs.Empty); LblSprintStatus.Text = "¡TERMINADO!"; return; }
-            _currentState = SprintState.Rest; _timeLeft = _cfgRest; _currentSet++;
-            if (Preferences.Get("UseSound", true)) TextToSpeech.SpeakAsync("Recupera");
+            if (_currentSet >= _cfgSets)
+            {
+                // LA RUTINA SE TERMINA POR COMPLETO
+                PlaySprintSound("SoundSprintEnd", "bell.mp3");
+                OnResetClicked(this, EventArgs.Empty);
+                LblSprintStatus.Text = "¡TERMINADO!";
+                return;
+            }
+
+            _currentState = SprintState.Rest;
+            _timeLeft = _cfgRest;
+            _currentSet++;
+
+            // SUENA EL INICIO DE LA RECUPERACIÓN
+            PlaySprintSound("SoundSprintRest", "alarma_4.mp3");
         }
         UpdateUI();
     }
