@@ -5,7 +5,6 @@ using AndroidX.Core.App;
 
 namespace TuAPP.Platforms.Android;
 
-// SOLUCIÓN AL ERROR CS0234: Usar la ruta global absoluta de Android
 [Service(ForegroundServiceType = global::Android.Content.PM.ForegroundService.TypeSpecialUse)]
 public class TimerForegroundService : Service
 {
@@ -21,6 +20,9 @@ public class TimerForegroundService : Service
     private bool _isRunning;
     private string _phaseLabel = "PREPARACIÓN";
 
+    // El asesino de Zombies: Este ID asegura que solo un reloj corra a la vez
+    private int _tickId = 0;
+
     public static event Action<int, string>? OnTick;
     public static event Action? OnServiceStop;
 
@@ -32,7 +34,7 @@ public class TimerForegroundService : Service
         {
             case ActionPause:
                 _isRunning = false;
-                _handler?.RemoveCallbacks(_tickAction!);
+                _tickId++; // Destruimos cualquier cuenta regresiva pendiente al instante
                 UpdateNotification();
                 return StartCommandResult.Sticky;
             case ActionResume:
@@ -41,6 +43,7 @@ public class TimerForegroundService : Service
                 UpdateNotification();
                 return StartCommandResult.Sticky;
             case ActionStop:
+                _tickId++;
                 StopForeground(StopForegroundFlags.Remove);
                 StopSelf();
                 OnServiceStop?.Invoke();
@@ -59,20 +62,43 @@ public class TimerForegroundService : Service
 
     private void StartTicker()
     {
-        if (_handler != null && _tickAction != null)
-            _handler.RemoveCallbacks(_tickAction);
+        _tickId++;
+        int currentTickId = _tickId;
 
-        _handler = new Handler(Looper.MainLooper!);
+        _handler ??= new Handler(Looper.MainLooper!);
+
+        long targetEndTimeMs = SystemClock.ElapsedRealtime() + (_secondsLeft * 1000);
+
         _tickAction = () =>
         {
-            if (!_isRunning) return;
-            _secondsLeft--;
+            // Seguro anti-zombies: Si se pausó, o si este es un loop viejo, muere aquí.
+            if (!_isRunning || _tickId != currentTickId) return;
+
+            long now = SystemClock.ElapsedRealtime();
+            long millisRemaining = targetEndTimeMs - now;
+
+            if (millisRemaining <= 0)
+            {
+                _secondsLeft = 0;
+                _isRunning = false;
+                OnTick?.Invoke(0, _phaseLabel);
+                UpdateNotification();
+                return;
+            }
+
+            _secondsLeft = (int)Math.Ceiling(millisRemaining / 1000.0);
             OnTick?.Invoke(_secondsLeft, _phaseLabel);
             UpdateNotification();
-            if (_secondsLeft > 0)
-                _handler.PostDelayed(_tickAction!, 1000);
+
+            if (_isRunning && _tickId == currentTickId)
+            {
+                long delay = millisRemaining % 1000;
+                if (delay < 10) delay = 1000;
+                _handler.PostDelayed(_tickAction!, delay);
+            }
         };
-        _handler.PostDelayed(_tickAction, 1000);
+
+        _handler.Post(_tickAction);
     }
 
     private Notification BuildNotification()
@@ -84,7 +110,12 @@ public class TimerForegroundService : Service
         var openPending = PendingIntent.GetActivity(this, 0, openIntent, PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
 
         var toggleAction = _isRunning ? ActionPause : ActionResume;
-        var toggleLabel = _isRunning ? "⏸ Pausar" : "▶ Reanudar";
+        var toggleLabel = _isRunning ? "Pausar" : "Reanudar";
+
+        int toggleIcon = _isRunning
+            ? global::Android.Resource.Drawable.IcMediaPause
+            : global::Android.Resource.Drawable.IcMediaPlay;
+
         var toggleIntent = new Intent(this, typeof(TimerForegroundService));
         toggleIntent.SetAction(toggleAction);
         var togglePending = PendingIntent.GetService(this, 1, toggleIntent, PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
@@ -94,14 +125,14 @@ public class TimerForegroundService : Service
         var stopPending = PendingIntent.GetService(this, 2, stopIntent, PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
 
         return new NotificationCompat.Builder(this, ChannelId)
-            .SetContentTitle($"🥊 {_phaseLabel}")
+            .SetContentTitle(_phaseLabel)
             .SetContentText($"{min:D2}:{sec:D2}")
-            .SetSmallIcon(Resource.Mipmap.appicon)
+            .SetSmallIcon(global::TuAPP.Resource.Mipmap.appicon)
             .SetContentIntent(openPending)
             .SetOngoing(true)
             .SetOnlyAlertOnce(true)
-            .AddAction(0, toggleLabel, togglePending)
-            .AddAction(0, "⏹ Detener", stopPending)
+            .AddAction(toggleIcon, toggleLabel, togglePending)
+            .AddAction(global::Android.Resource.Drawable.IcMenuCloseClearCancel, "Detener", stopPending)
             .SetVisibility(NotificationCompat.VisibilityPublic)
             .Build();
     }
@@ -120,7 +151,7 @@ public class TimerForegroundService : Service
         var nm = (NotificationManager?)GetSystemService(NotificationService);
         nm?.CreateNotificationChannel(channel);
     }
-    // Este evento se dispara cuando cierras la app deslizándola en las apps recientes
+
     public override void OnTaskRemoved(Intent? rootIntent)
     {
         base.OnTaskRemoved(rootIntent);

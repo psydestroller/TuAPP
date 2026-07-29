@@ -12,11 +12,11 @@
             <Picker x:Name="PckWorkoutType" TextColor="White" FontSize="22" FontAttributes="Bold" HorizontalTextAlignment="Center" BackgroundColor="Transparent" Title="Elige Modalidad">
                 <Picker.ItemsSource>
                     <x:Array Type="{x:Type x:String}">
-                        <x:String>Classic boxing 🥊</x:String>
-                        <x:String>Sombra 👤</x:String>
-                        <x:String>Costal 🥋</x:String>
-                        <x:String>Sparring 🤼</x:String>
-                        <x:String>Cuerda ➰</x:String>
+                        <x:String>Boxeo</x:String>
+                        <x:String>Sombra</x:String>
+                        <x:String>Costal</x:String>
+                        <x:String>Sparring</x:String>
+                        <x:String>Cuerda</x:String>
                     </x:Array>
                 </Picker.ItemsSource>
                 <Picker.SelectedIndex>0</Picker.SelectedIndex>
@@ -49,9 +49,9 @@
         </Grid>
 
         <Grid Grid.Row="2" ColumnDefinitions="Auto, Auto, Auto" HorizontalOptions="Center" ColumnSpacing="25" VerticalOptions="End">
-            <Button Grid.Column="0" Text="↻" Clicked="OnResetClicked" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="#18181B" TextColor="White" FontSize="24" VerticalOptions="Center"/>
-            <Button Grid.Column="1" x:Name="BtnPlayPause" Text="▶" Clicked="OnPlayPauseClicked" WidthRequest="80" HeightRequest="80" CornerRadius="40" BackgroundColor="#18181B" TextColor="White" FontSize="36" VerticalOptions="Center"/>
-            <Button Grid.Column="2" Text="⏭" Clicked="OnSkipClicked" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="#18181B" TextColor="White" FontSize="20" VerticalOptions="Center"/>
+            <ImageButton Grid.Column="0" Source="ic_reset.png" Clicked="OnResetClicked" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="#18181B" Padding="15" VerticalOptions="Center"/>
+            <ImageButton Grid.Column="1" x:Name="BtnPlayPause" Source="ic_play.png" Clicked="OnPlayPauseClicked" WidthRequest="80" HeightRequest="80" CornerRadius="40" BackgroundColor="#18181B" Padding="25" VerticalOptions="Center"/>
+            <ImageButton Grid.Column="2" Source="ic_skip.png" Clicked="OnSkipClicked" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="#18181B" Padding="15" VerticalOptions="Center"/>
         </Grid>
 
     </Grid>

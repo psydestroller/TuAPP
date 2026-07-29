@@ -51,9 +51,9 @@
             <Label x:Name="LblSprintStatus" Text="LISTO" FontSize="20" TextColor="White" FontAttributes="Bold" HorizontalOptions="Center"/>
 
             <HorizontalStackLayout HorizontalOptions="Center" Spacing="20" Margin="0,30,0,0">
-                <Button Text="🔄" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="#1E1E1E" TextColor="White" FontSize="20" Clicked="OnResetClicked"/>
-                <Button x:Name="BtnStartSprints" Text="INICIAR" WidthRequest="150" HeightRequest="60" CornerRadius="30" BackgroundColor="{StaticResource WorkColor}" TextColor="Black" FontAttributes="Bold" FontSize="18" Clicked="OnStartSprintsClicked"/>
-                <Button Text="⏭" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="#1E1E1E" TextColor="White" FontSize="20" Clicked="OnSkipClicked"/>
+                <ImageButton Source="ic_reset.png" Clicked="OnResetClicked" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="#18181B" Padding="15" VerticalOptions="Center"/>
+                <Button x:Name="BtnStartSprints" Text="INICIAR" WidthRequest="150" HeightRequest="60" CornerRadius="30" BackgroundColor="{StaticResource WorkColor}" TextColor="Black" FontAttributes="Bold" FontSize="18" Clicked="OnStartSprintsClicked" VerticalOptions="Center"/>
+                <ImageButton Source="ic_skip.png" Clicked="OnSkipClicked" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="#18181B" Padding="15" VerticalOptions="Center"/>
             </HorizontalStackLayout>
         </VerticalStackLayout>
     </ScrollView>

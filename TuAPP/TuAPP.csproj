@@ -4,42 +4,20 @@
 		<TargetFrameworks>net10.0-android</TargetFrameworks>
 		<TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('linux'))">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
-
-		<!-- Note for MacCatalyst:
-		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
-		When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
-		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
-		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
-		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
-
 		<OutputType>Exe</OutputType>
 		<RootNamespace>TuAPP</RootNamespace>
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-
-		<!-- Enable XAML source generation for faster build times and improved performance.
-		     This generates C# code from XAML at compile time instead of runtime inflation.
-		     To disable, remove this line.
-		     For individual files, you can override by setting Inflator metadata:
-		       <MauiXaml Update="MyPage.xaml" Inflator="Default" /> (reverts to defaults: Runtime for Debug, XamlC for Release)
-		       <MauiXaml Update="MyPage.xaml" Inflator="Runtime" /> (force runtime inflation) -->
 		<MauiXamlInflator>SourceGen</MauiXamlInflator>
-
-		<!-- Display name -->
-		<ApplicationTitle>CronBox</ApplicationTitle>
-
-		<!-- App Identifier -->
-		<ApplicationId>com.companyname.tuapp</ApplicationId>
-
-		<!-- Versions -->
+		
+        <ApplicationTitle>CronBox</ApplicationTitle>
+		<ApplicationId>com.pedro.cronbox</ApplicationId>
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
-
-		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
-		<WindowsPackageType>None</WindowsPackageType>
-
+		
+        <WindowsPackageType>None</WindowsPackageType>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
@@ -48,23 +26,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- App Icon -->
-
-		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
-
-		<!-- Images -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#09090B" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#09090B" BaseSize="256,256" />
 		<MauiImage Include="Resources\Images\*" />
-		
-		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
-
-		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiIcon Include="Resources\AppIcon\appicon.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -76,57 +42,57 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="BoxingTimerPage.xaml.cs">
-	    <DependentUpon>BoxingTimerPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="IMCpage.xaml.cs">
-	    <DependentUpon>IMCpage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="CardioPage.xaml.cs">
-	    <DependentUpon>CardioPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="OnboardingPage.xaml.cs">
-	    <DependentUpon>OnboardingPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="WorkoutSummaryPage.xaml.cs">
-	    <DependentUpon>WorkoutSummaryPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="ProfilePage.xaml.cs">
-	    <DependentUpon>ProfilePage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="SettingsPage.xaml.cs">
-	    <DependentUpon>SettingsPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="SprintsPage.xaml.cs">
-	    <DependentUpon>SprintsPage.xaml</DependentUpon>
-	  </Compile>
+		<Compile Update="BoxingTimerPage.xaml.cs">
+			<DependentUpon>BoxingTimerPage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="IMCpage.xaml.cs">
+			<DependentUpon>IMCpage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="CardioPage.xaml.cs">
+			<DependentUpon>CardioPage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="OnboardingPage.xaml.cs">
+			<DependentUpon>OnboardingPage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="WorkoutSummaryPage.xaml.cs">
+			<DependentUpon>WorkoutSummaryPage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="ProfilePage.xaml.cs">
+			<DependentUpon>ProfilePage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="SettingsPage.xaml.cs">
+			<DependentUpon>SettingsPage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="SprintsPage.xaml.cs">
+			<DependentUpon>SprintsPage.xaml</DependentUpon>
+		</Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="DashboardPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="IMCpage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="CardioPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="OnboardingPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="WorkoutSummaryPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="ProfilePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="SettingsPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="SprintsPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+		<MauiXaml Update="DashboardPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="IMCpage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="CardioPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="OnboardingPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="WorkoutSummaryPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="ProfilePage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="SettingsPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="SprintsPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 
 </Project>

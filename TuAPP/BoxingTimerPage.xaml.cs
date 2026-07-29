@@ -12,10 +12,10 @@ public partial class BoxingTimerPage : ContentPage
     private int _currentRound = 1, _timeLeft, _currentMaxTime;
     private bool _isTimerRunning = false;
     private IAudioPlayer? _bellPlayer;
-    private DateTime _phaseEndTime;
-
-    // CANDADO ANTI-BUGS: Evita que el entrenamiento se guarde doble si el usuario espamea el botón Skip
     private bool _isSaving = false;
+
+    // NUEVO: Candado Anti-Glitch para evitar que se bugee si skipeas muy rápido
+    private DateTime _lastTransitionTime = DateTime.MinValue;
 
     public BoxingTimerPage()
     {
@@ -37,10 +37,8 @@ public partial class BoxingTimerPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-
         ForegroundTimerBridge.OnTick -= HandleServiceTick;
         ForegroundTimerBridge.OnServiceStop -= HandleServiceStop;
-
         ForegroundTimerBridge.OnTick += HandleServiceTick;
         ForegroundTimerBridge.OnServiceStop += HandleServiceStop;
 
@@ -68,16 +66,13 @@ public partial class BoxingTimerPage : ContentPage
         {
             if (!_isTimerRunning) return;
 
-            int atomicSecondsLeft = (int)Math.Ceiling((_phaseEndTime - DateTime.Now).TotalSeconds);
+            // SINCRONIZACIÓN PERFECTA: La pantalla ya no calcula el tiempo, solo obedece a Android.
+            _timeLeft = secondsLeft;
+            UpdateUI();
 
-            if (atomicSecondsLeft <= 0)
+            if (_timeLeft <= 0)
             {
                 AdvanceState();
-            }
-            else
-            {
-                _timeLeft = atomicSecondsLeft;
-                UpdateUI();
             }
         });
     }
@@ -107,12 +102,10 @@ public partial class BoxingTimerPage : ContentPage
                 _currentMaxTime = _timeLeft;
                 if (_cfgPrep == 0) _currentState = TimerState.Work;
 
-                _phaseEndTime = DateTime.Now.AddSeconds(_timeLeft);
                 ForegroundTimerBridge.Start(_timeLeft, GetPhaseName(_currentState));
             }
             else
             {
-                _phaseEndTime = DateTime.Now.AddSeconds(_timeLeft);
                 ForegroundTimerBridge.Resume();
             }
 
@@ -124,6 +117,10 @@ public partial class BoxingTimerPage : ContentPage
 
     private void AdvanceState()
     {
+        // CANDADO MILISEGUNDOS: Si presionaste Skip hace menos de 800ms, ignora el comando. (Evita el bug de multi-clicks)
+        if ((DateTime.Now - _lastTransitionTime).TotalMilliseconds < 800) return;
+        _lastTransitionTime = DateTime.Now;
+
         if (_currentState == TimerState.Prep || _currentState == TimerState.Rest)
         {
             _currentState = TimerState.Work;
@@ -163,8 +160,6 @@ public partial class BoxingTimerPage : ContentPage
             }
         }
 
-        _phaseEndTime = DateTime.Now.AddSeconds(_timeLeft);
-
         if (_isTimerRunning)
         {
             ForegroundTimerBridge.Start(_timeLeft, GetPhaseName(_currentState));
@@ -182,7 +177,7 @@ public partial class BoxingTimerPage : ContentPage
         if (_isSaving) return;
         _isSaving = true;
 
-        string selected = PckWorkoutType.SelectedItem?.ToString() ?? "Classic boxing 🥊";
+        string selected = PckWorkoutType.SelectedItem?.ToString() ?? "Classic boxing";
         WorkoutType currentWorkoutType = WorkoutType.ClassicBoxing;
         if (selected.Contains("Sombra")) currentWorkoutType = WorkoutType.Shadow;
         if (selected.Contains("Costal")) currentWorkoutType = WorkoutType.HeavyBag;
@@ -224,8 +219,6 @@ public partial class BoxingTimerPage : ContentPage
         _isTimerRunning = false;
         _currentState = TimerState.Idle;
         _currentRound = 1;
-
-        // FIX DEL ARCO VACÍO: Al igualar el tiempo restante al máximo de trabajo, el gráfico calcula 100%
         _timeLeft = _cfgWork;
         _currentMaxTime = _cfgWork;
 
@@ -237,10 +230,9 @@ public partial class BoxingTimerPage : ContentPage
 
     private void UpdateUI()
     {
-        BtnPlayPause.Text = _isTimerRunning ? "⏸" : "▶";
+        BtnPlayPause.Source = _isTimerRunning ? "ic_pause.png" : "ic_play.png";
         LblRound.Text = $"Ronda {_currentRound}/{_cfgRounds}";
         LblTimer.Text = TimeSpan.FromSeconds(_timeLeft).ToString(@"mm\:ss");
-
         LblStatusTop.Text = GetPhaseName(_currentState);
 
         if (_currentState == TimerState.Prep) { LblStatusTop.TextColor = Color.FromArgb("#EAB308"); LblTimer.TextColor = Color.FromArgb("#EAB308"); }
