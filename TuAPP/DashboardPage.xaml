@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:TuAPP"
-             x:Class="TuAPP.DashboardPage" BackgroundColor="#09090B">
+             x:Class="TuAPP.DashboardPage" BackgroundColor="{StaticResource BackgroundColor}">
 
     <ScrollView Padding="20">
         <VerticalStackLayout Spacing="20">
-            <Label Text="Campamento" FontSize="28" FontAttributes="Bold" TextColor="White"/>
+            <Label Text="Registro de Entrenamiento" FontSize="28" FontAttributes="Bold" TextColor="White"/>
 
             <!-- TARJETA 1: PRÓXIMA PELEA CON BOTÓN DE EDITAR -->
             <Border BackgroundColor="#18181B" Padding="20" StrokeShape="RoundRectangle 16" StrokeThickness="0">
@@ -17,8 +16,8 @@
                     </Grid>
 
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
-                        <Label x:Name="LblCountdown" Text="37 días" FontSize="36" FontAttributes="Bold" TextColor="#10B981" HorizontalOptions="Center"/>
-                        <Label x:Name="LblFightDateDisplay" Text="26 de julio, 2026" TextColor="#A1A1AA" FontSize="14" HorizontalOptions="Center"/>
+                        <Label x:Name="LblCountdown" Text="-- días" FontSize="36" FontAttributes="Bold" TextColor="#10B981" HorizontalOptions="Center"/>
+                        <Label x:Name="LblFightDateDisplay" Text="Cargando fecha..." TextColor="#A1A1AA" FontSize="14" HorizontalOptions="Center"/>
                     </VerticalStackLayout>
 
                     <!-- FORMULARIO DESPLEGABLE DE PELEA -->
@@ -36,55 +35,105 @@
                     <Grid ColumnDefinitions="*, *">
                         <VerticalStackLayout HorizontalOptions="Center">
                             <Label Text="Peso Actual" TextColor="#A1A1AA" FontSize="12" HorizontalOptions="Center"/>
-                            <Label x:Name="LblCurrentWeight" Text="66.5 kg" TextColor="White" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            <Label x:Name="LblCurrentWeight" Text="-- kg" TextColor="White" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
                             <Label Text="Peso Meta" TextColor="#A1A1AA" FontSize="12" HorizontalOptions="Center"/>
-                            <Label x:Name="LblTargetWeight" Text="66.0 kg" TextColor="#10B981" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            <Label x:Name="LblTargetWeight" Text="-- kg" TextColor="#10B981" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
                         </VerticalStackLayout>
                     </Grid>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- TARJETA 2: META SEMANAL -->
+            <!-- TARJETA 2: DIARIO DE ENTRENAMIENTO -->
             <Border BackgroundColor="#18181B" Padding="20" StrokeShape="RoundRectangle 16" StrokeThickness="0">
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="📊 META SEMANAL (50 ROUNDS)" TextColor="#A1A1AA" FontSize="12" FontAttributes="Bold"/>
-                    <Grid ColumnDefinitions="Auto, *">
-                        <GraphicsView Grid.Column="0" x:Name="ProgressGraphicsView" WidthRequest="100" HeightRequest="100" HorizontalOptions="Center">
-                            <GraphicsView.Drawable>
-                                <local:CircularProgressDrawable x:Name="CampProgressDrawable"/>
-                            </GraphicsView.Drawable>
-                        </GraphicsView>
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center" Spacing="5">
-                            <Label x:Name="LblDailyCals" Text="~0 kcal" TextColor="#EF4444" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center"/>
-                            <Label Text="Desgaste Est." TextColor="#A1A1AA" FontSize="12" HorizontalOptions="Center"/>
-                        </VerticalStackLayout>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="📓 DIARIO DE RUTINA" TextColor="#A1A1AA" FontSize="12" FontAttributes="Bold" VerticalOptions="Center"/>
+                        <Button Grid.Column="1" Text="+ Registrar Día" FontSize="12" BackgroundColor="{StaticResource WorkColor}" TextColor="Black" HeightRequest="30" CornerRadius="6" Padding="10,0" FontAttributes="Bold" Clicked="OnToggleAddJournal"/>
                     </Grid>
+
+                    <!-- FORMULARIO PARA AGREGAR / EDITAR NOTAS -->
+                    <Border x:Name="FormAddJournal" IsVisible="False" BackgroundColor="#27272A" Padding="15" StrokeShape="RoundRectangle 10" StrokeThickness="0">
+                        <VerticalStackLayout Spacing="12">
+                            <Label x:Name="LblJournalTitle" Text="¿Cómo te fue hoy?" FontAttributes="Bold" TextColor="White" FontSize="14"/>
+
+                            <!-- Intensidad -->
+                            <Label Text="Intensidad del entrenamiento" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
+                            <Picker x:Name="PckIntensity" BackgroundColor="#18181B" TextColor="White" Title="Selecciona...">
+                                <Picker.Items>
+                                    <x:String>Suave (Recuperación)</x:String>
+                                    <x:String>Media (Técnico)</x:String>
+                                    <x:String>Alta (Sparring / Sprints)</x:String>
+                                    <x:String>Extrema</x:String>
+                                </Picker.Items>
+                            </Picker>
+
+                            <!-- Sensación Física -->
+                            <Label Text="Sensación física" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
+                            <Picker x:Name="PckFeeling" BackgroundColor="#18181B" TextColor="White" Title="¿Cómo te sientes?">
+                                <Picker.Items>
+                                    <x:String>Excelente / Ligero</x:String>
+                                    <x:String>Normal</x:String>
+                                    <x:String>Cansado / Pesado</x:String>
+                                    <x:String>Adolorido / Lesión leve</x:String>
+                                </Picker.Items>
+                            </Picker>
+
+                            <!-- Notas manuales -->
+                            <Label Text="Notas del día (Opcional)" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
+                            <Editor x:Name="EdtNotes" BackgroundColor="#18181B" TextColor="White" Placeholder="Ej. Me cansé rápido en el 4to round..." HeightRequest="80"/>
+
+                            <Button x:Name="BtnSaveJournal" Text="Guardar en Bitácora" BackgroundColor="#10B981" TextColor="Black" FontAttributes="Bold" HeightRequest="40" CornerRadius="6" Clicked="OnSaveJournal"/>
+                        </VerticalStackLayout>
+                    </Border>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- SESIONES RECIENTES -->
+            <!-- BITÁCORA HISTÓRICA: LISTA DE ENTRENAMIENTOS -->
             <VerticalStackLayout Spacing="10">
-                <Label Text="SESIONES RECIENTES" TextColor="#A1A1AA" FontSize="12" FontAttributes="Bold" Margin="5,10,0,0"/>
+                <Label Text="HISTORIAL DE PREPARACIÓN" TextColor="#A1A1AA" FontSize="12" FontAttributes="Bold" Margin="5,10,0,0"/>
+
                 <CollectionView x:Name="ListGymSessions">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
+                            <!-- Diseño de cada tarjeta en el historial -->
                             <Border BackgroundColor="#18181B" Padding="15" Margin="0,0,0,10" StrokeShape="RoundRectangle 10" StrokeThickness="0">
-                                <Grid ColumnDefinitions="*, Auto">
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding Type}" TextColor="White" FontAttributes="Bold" FontSize="16"/>
-                                        <Label Text="{Binding Date, StringFormat='{0:yyyy-MM-dd}'}" TextColor="#A1A1AA" FontSize="12"/>
-                                    </VerticalStackLayout>
-                                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="End">
-                                        <Label Text="{Binding RoundsCompleted, StringFormat='{0} Rnds'}" TextColor="#10B981" FontAttributes="Bold" FontSize="16" HorizontalOptions="End"/>
-                                        <Label Text="{Binding CaloriesBurned, StringFormat='{0:F0} kcal'}" TextColor="#EF4444" FontSize="12" HorizontalOptions="End"/>
-                                    </VerticalStackLayout>
-                                </Grid>
+                                <VerticalStackLayout Spacing="8">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <Label Text="{Binding Date, StringFormat='{0:dddd, dd MMM yyyy}'}" TextColor="White" FontAttributes="Bold" FontSize="16"/>
+                                        <Border Grid.Column="1" BackgroundColor="#27272A" Padding="8,4" StrokeShape="RoundRectangle 6">
+                                            <Label Text="{Binding Type}" TextColor="{StaticResource WorkColor}" FontSize="10" FontAttributes="Bold"/>
+                                        </Border>
+                                    </Grid>
+
+                                    <HorizontalStackLayout Spacing="15">
+                                        <Label Text="{Binding RoundsCompleted, StringFormat='🥊 {0} Rounds'}" TextColor="#A1A1AA" FontSize="12" IsVisible="{Binding IsBoxing}"/>
+                                        <Label Text="{Binding SprintsCompleted, StringFormat='🏃 {0} Sprints'}" TextColor="#A1A1AA" FontSize="12" IsVisible="{Binding IsSprint}"/>
+                                    </HorizontalStackLayout>
+
+                                    <Grid ColumnDefinitions="Auto, *, Auto">
+                                        <Label Grid.Column="0" Text="{Binding Intensity, StringFormat='Intensidad: {0}'}" TextColor="White" FontSize="12"/>
+                                        <Label Grid.Column="2" Text="{Binding Feeling, StringFormat='Estado: {0}'}" TextColor="#EAB308" FontSize="12" HorizontalOptions="End"/>
+                                    </Grid>
+
+                                    <Label Text="{Binding Notes}" TextColor="#A1A1AA" FontSize="12" FontAttributes="Italic" IsVisible="{Binding HasNotes}" Margin="0,5,0,0"/>
+
+                                    <BoxView HeightRequest="1" Color="#27272A" Margin="0,10,0,5"/>
+
+                                    <!-- NUEVOS BOTONES DE ACCIÓN -->
+                                    <HorizontalStackLayout Spacing="10" HorizontalOptions="End">
+                                        <Button Text="✏️ Editar" FontSize="11" BackgroundColor="#27272A" TextColor="White" HeightRequest="30" Padding="10,0" CornerRadius="6" CommandParameter="{Binding .}" Clicked="OnEditSessionClicked"/>
+                                        <Button Text=" Eliminar" FontSize="11" BackgroundColor="#7F1D1D" TextColor="White" HeightRequest="30" Padding="10,0" CornerRadius="6" CommandParameter="{Binding .}" Clicked="OnDeleteSessionClicked"/>
+                                    </HorizontalStackLayout>
+
+                                </VerticalStackLayout>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+
+                <Label x:Name="LblEmptyHistory" Text="Aún no hay registros en la bitácora." TextColor="#A1A1AA" HorizontalOptions="Center" IsVisible="False" Margin="0,20,0,0"/>
             </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>

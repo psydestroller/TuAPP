@@ -26,6 +26,14 @@ public partial class SprintsPage : ContentPage
         if (!Preferences.Get("UseSound", true)) return;
 
         string filename = Preferences.Get(prefKey, defaultFile);
+
+        // FILTRO: Si el archivo no es válido, forza el predeterminado para no romperse
+        if (filename != "bell.mp3" && !filename.StartsWith("alarma_"))
+        {
+            filename = defaultFile;
+            Preferences.Set(prefKey, defaultFile);
+        }
+
         try
         {
             if (_sprintPlayer != null && _sprintPlayer.IsPlaying) _sprintPlayer.Stop();
@@ -81,11 +89,10 @@ public partial class SprintsPage : ContentPage
                 _currentState = _cfgPrep > 0 ? SprintState.Prep : SprintState.Sprint;
                 _timeLeft = _currentState == SprintState.Prep ? _cfgPrep : _cfgWork;
 
-                // INICIA EL PRIMER SONIDO DE LA RUTINA
                 if (_currentState == SprintState.Prep)
                     PlaySprintSound("SoundSprintPrep", "alarma_3.mp3");
                 else
-                    PlaySprintSound("SoundSprintWork", "alarma_1.mp3"); // Cambiado a alarma 1
+                    PlaySprintSound("SoundSprintWork", "alarma_6.mp3"); // Sincronizado a alarma_6
             }
             _sprintTimer.Start();
             if (Preferences.Get("KeepScreenOn", true)) DeviceDisplay.Current.KeepScreenOn = true;
@@ -124,14 +131,12 @@ public partial class SprintsPage : ContentPage
             _currentState = SprintState.Sprint;
             _timeLeft = _cfgWork;
 
-            // SUENA EL ARRANQUE DEL SPRINT
-            PlaySprintSound("SoundSprintWork", "alarma_1.mp3"); // Cambiado a alarma 1
+            PlaySprintSound("SoundSprintWork", "alarma_6.mp3"); // Sincronizado a alarma_6
         }
         else if (_currentState == SprintState.Sprint)
         {
             if (_currentSet >= _cfgSets)
             {
-                // LA RUTINA SE TERMINA POR COMPLETO
                 PlaySprintSound("SoundSprintEnd", "bell.mp3");
                 OnResetClicked(this, EventArgs.Empty);
                 LblSprintStatus.Text = "¡TERMINADO!";
@@ -142,7 +147,6 @@ public partial class SprintsPage : ContentPage
             _timeLeft = _cfgRest;
             _currentSet++;
 
-            // SUENA EL INICIO DE LA RECUPERACIÓN
             PlaySprintSound("SoundSprintRest", "alarma_4.mp3");
         }
         UpdateUI();

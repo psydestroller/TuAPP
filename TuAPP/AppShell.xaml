@@ -23,7 +23,7 @@
             <ShellContent ContentTemplate="{DataTemplate local:IMCpage}" />
         </Tab>
 
-        <Tab Title="Preparación" Icon="preparacion.png">
+        <Tab Title="Registro" Icon="preparacion.png">
             <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
         </Tab>
 

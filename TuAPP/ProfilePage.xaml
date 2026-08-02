@@ -3,108 +3,241 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TuAPP.ProfilePage" BackgroundColor="{StaticResource BackgroundColor}">
 
-    <ScrollView Padding="20">
-        <VerticalStackLayout Spacing="20">
-            <Label Text="Perfil" FontSize="26" FontAttributes="Bold" TextColor="White"/>
+    <Grid>
+        <!-- CONTENIDO PRINCIPAL -->
+        <ScrollView Padding="20">
+            <VerticalStackLayout Spacing="20">
 
-            <Border Padding="20">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="15" />
-                </Border.StrokeShape>
-                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                    <Border WidthRequest="70" HeightRequest="70" BackgroundColor="#27272A" HorizontalOptions="Center">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="35"/>
-                        </Border.StrokeShape>
-                        <Label x:Name="LblInitials" Text="JD" TextColor="White" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
-                    </Border>
-                    <Label x:Name="LblName" Text="Juan Deportista" FontSize="20" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
-                    <Label x:Name="LblCatTop" Text="Categoría: Ligero" FontSize="14" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
+                <!-- ENCABEZADO CON BOTÓN DE 3 PUNTOS -->
+                <Grid ColumnDefinitions="*, Auto" Margin="0,10,0,0">
+                    <Label Text="Perfil de Peleador" FontSize="26" FontAttributes="Bold" TextColor="White" VerticalOptions="Center"/>
+                    <Button Text="⋮" FontSize="22" FontAttributes="Bold" BackgroundColor="Transparent" TextColor="White" Grid.Column="1" WidthRequest="45" HeightRequest="45" Clicked="OnOpenOptionsMenu" Padding="0"/>
+                </Grid>
+
+                <!-- TARJETA DE PRESENTACIÓN PRINCIPAL (V-E-D-KO) -->
+                <Border Padding="20" BackgroundColor="#18181B" Stroke="#EAB308" StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+
+                        <Border WidthRequest="90" HeightRequest="90" BackgroundColor="#27272A" HorizontalOptions="Center" Stroke="#EAB308" StrokeThickness="1">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="45"/>
+                            </Border.StrokeShape>
+                            <Grid>
+                                <Label x:Name="LblInitials" Text="PE" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                <Image x:Name="ImgProfile" Aspect="AspectFill" IsVisible="False"/>
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnProfilePictureTapped"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                        <Label Text="Toca para cambiar foto" FontSize="10" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center" Margin="0,-10,0,0"/>
+
+                        <Label x:Name="LblName" Text="Pedro" FontSize="22" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                        <Label x:Name="LblCatTop" Text="Categoría: Wélter" FontSize="14" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
+
+                        <BoxView HeightRequest="1" Color="#27272A" Margin="0,5"/>
+
+                        <!-- TÍTULO DE RÉCORD -->
+                        <Label Text="RÉCORD" TextColor="{StaticResource SubtitleColor}" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" CharacterSpacing="2"/>
+
+                        <!-- RÉCORD V - E - D - KO (TAMAÑOS AUMENTADOS) -->
+                        <Grid ColumnDefinitions="*,*,*,*" HorizontalOptions="Center" WidthRequest="280">
+                            <!-- Victorias -->
+                            <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="0">
+                                <Label x:Name="LblWins" Text="0" TextColor="#10B981" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center"/>
+                                <Label Text="V" TextColor="#10B981" FontAttributes="Bold" HorizontalOptions="Center" FontSize="14"/>
+                            </VerticalStackLayout>
+                            <!-- Empates -->
+                            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="0">
+                                <Label x:Name="LblDraws" Text="0" TextColor="White" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="End"/>
+                                <Label Text="E" TextColor="#A1A1AA" FontAttributes="Bold" HorizontalOptions="Center" FontSize="12"/>
+                            </VerticalStackLayout>
+                            <!-- Derrotas -->
+                            <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="0">
+                                <Label x:Name="LblLosses" Text="0" TextColor="#EF4444" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="End"/>
+                                <Label Text="D" TextColor="#71717A" FontAttributes="Bold" HorizontalOptions="Center" FontSize="11"/>
+                            </VerticalStackLayout>
+                            <!-- KOs -->
+                            <VerticalStackLayout Grid.Column="3" HorizontalOptions="Center" Spacing="0">
+                                <Label x:Name="LblKOs" Text="0" TextColor="#EAB308" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="End"/>
+                                <Label Text="KO" TextColor="#71717A" FontAttributes="Bold" HorizontalOptions="Center" FontSize="11"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- TALE OF THE TAPE -->
+                <Border Padding="15" BackgroundColor="#18181B" Stroke="#EAB308" StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="14"/>
+                    </Border.StrokeShape>
+                    <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *" RowSpacing="15">
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="0" HorizontalOptions="Center" Spacing="2">
+                            <Label x:Name="LblAge" Text="17" FontSize="18" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                            <Label Text="EDAD" FontSize="9" TextColor="#A1A1AA" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                            <Label x:Name="LblHeight" Text="176 cm" FontSize="18" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                            <Label Text="ALTURA" FontSize="9" TextColor="#A1A1AA" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="0" HorizontalOptions="Center" Spacing="2">
+                            <Label x:Name="LblWeight" Text="65 kg" FontSize="18" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                            <Label Text="PESO" FontSize="9" TextColor="#A1A1AA" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                            <Label x:Name="LblImc" Text="21.0" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
+                            <Label Text="IMC" FontSize="9" TextColor="#A1A1AA" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- FORMULARIO DE PERFIL UNIFICADO (Oculto) -->
+                <Border x:Name="FormEdit" IsVisible="False" Padding="15" BackgroundColor="#18181B" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Editar Perfil y Récord" FontSize="16" FontAttributes="Bold" TextColor="White"/>
+
+                        <Entry x:Name="EntryName" Placeholder="Nombre" BackgroundColor="#27272A" TextColor="White"/>
+
+                        <!-- EDAD, ALTURA Y PESO JUNTOS -->
+                        <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
+                            <Entry Grid.Column="0" x:Name="EntryAge" Placeholder="Edad" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
+                            <Entry Grid.Column="1" x:Name="EntryHeight" Placeholder="Altura (cm)" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
+                            <Entry Grid.Column="2" x:Name="EntryWeight" Placeholder="Peso (kg)" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
+                        </Grid>
+
+                        <Label Text="Récord (Victorias - Empates - Derrotas - KO)" FontSize="11" TextColor="{StaticResource SubtitleColor}"/>
+                        <Grid ColumnDefinitions="*, *, *, *" ColumnSpacing="5">
+                            <Entry Grid.Column="0" x:Name="EntryWins" Placeholder="V" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="#10B981" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
+                            <Entry Grid.Column="1" x:Name="EntryDraws" Placeholder="E" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
+                            <Entry Grid.Column="2" x:Name="EntryLosses" Placeholder="D" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="#EF4444" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
+                            <Entry Grid.Column="3" x:Name="EntryKOs" Placeholder="KO" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="#EAB308" HorizontalTextAlignment="Center" FontAttributes="Bold"/>
+                        </Grid>
+
+                        <!-- BOTONES CANCELAR Y GUARDAR -->
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0,10,0,0">
+                            <Button Grid.Column="0" Text="Cancelar" BackgroundColor="Transparent" TextColor="#EF4444" BorderColor="#EF4444" BorderWidth="1" FontAttributes="Bold" CornerRadius="8" Clicked="OnCancelEdit"/>
+                            <Button Grid.Column="1" Text="Guardar Datos" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="8" Clicked="OnSaveProfile"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- HISTORIAL DE PELEAS DESPLEGABLE -->
+                <Border Padding="15" BackgroundColor="#18181B" Stroke="#EAB308" StrokeThickness="0.8">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Text="📜 HISTORIAL DE COMBATES" TextColor="#EAB308" FontSize="12" FontAttributes="Bold" VerticalOptions="Center"/>
+                            <Button Grid.Column="1" Text="Ver / Ocultar" FontSize="10" BackgroundColor="#27272A" TextColor="White" HeightRequest="30" CornerRadius="6" Padding="10,0" Clicked="OnToggleHistory"/>
+                        </Grid>
+
+                        <VerticalStackLayout x:Name="SectionHistory" IsVisible="False" Spacing="15" Margin="0,10,0,0">
+                            <Button Text="+ Registrar Combate" BackgroundColor="#27272A" TextColor="White" FontAttributes="Bold" CornerRadius="6" HeightRequest="35" Clicked="OnToggleAddFight"/>
+
+                            <!-- FORMULARIO AÑADIR COMBATE -->
+                            <Border x:Name="FormAddFight" IsVisible="False" BackgroundColor="#27272A" Padding="10" StrokeThickness="0">
+                                <VerticalStackLayout Spacing="10">
+                                    <Entry x:Name="EntryOpponent" Placeholder="Nombre del oponente" BackgroundColor="#18181B" TextColor="White" FontSize="14"/>
+
+                                    <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                                        <Entry Grid.Column="0" x:Name="EntryFightType" Placeholder="Tipo (Amateur, Prof..)" BackgroundColor="#18181B" TextColor="White" FontSize="12"/>
+                                        <Entry Grid.Column="1" x:Name="EntryFightWeight" Placeholder="Peso (Ej. 65..)" Keyboard="Numeric" BackgroundColor="#18181B" TextColor="White" FontSize="12"/>
+                                    </Grid>
+
+                                    <Entry x:Name="EntryDetails" Placeholder="Detalles (Campeonato local, evento, etc.)" BackgroundColor="#18181B" TextColor="White" FontSize="14"/>
+
+                                    <Picker x:Name="PckResult" BackgroundColor="#18181B" TextColor="White" Title="Resultado Oficial">
+                                        <Picker.Items>
+                                            <x:String>Victoria</x:String>
+                                            <x:String>Victoria por KO</x:String>
+                                            <x:String>Victoria por RSC</x:String>
+                                            <x:String>Derrota</x:String>
+                                            <x:String>Derrota por KO</x:String>
+                                            <x:String>Derrota por RSC</x:String>
+                                            <x:String>Empate</x:String>
+                                        </Picker.Items>
+                                    </Picker>
+
+                                    <!-- Switch de Fecha opcional -->
+                                    <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                                        <Label Text="Añadir Fecha:" TextColor="White" VerticalOptions="Center" FontSize="14"/>
+                                        <Switch x:Name="SwHasDate" IsToggled="False"/>
+                                        <DatePicker x:Name="DpFightDate" BackgroundColor="#18181B" TextColor="White" IsVisible="{Binding IsToggled, Source={x:Reference SwHasDate}}"/>
+                                    </HorizontalStackLayout>
+
+                                    <Button Text="Guardar Combate" BackgroundColor="{StaticResource WorkColor}" TextColor="Black" FontAttributes="Bold" Clicked="OnSavePastFight"/>
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <!-- LISTA DE HISTORIAL -->
+                            <CollectionView x:Name="ListPastFights">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BackgroundColor="#27272A" Padding="10" Margin="0,0,0,8" StrokeThickness="0">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="8"/>
+                                            </Border.StrokeShape>
+
+                                            <!-- GRID ACTUALIZADO CON LÍNEA DIVISORA -->
+                                            <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="10">
+
+                                                <BoxView WidthRequest="4" BackgroundColor="{Binding ResultColor}" VerticalOptions="Fill"/>
+
+                                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                                    <Label Text="{Binding TitleDisplay}" TextColor="White" FontAttributes="Bold" FontSize="14"/>
+                                                    <Label Text="{Binding OptionalInfoDisplay}" TextColor="#EAB308" FontSize="10" FontAttributes="Bold" IsVisible="{Binding HasOptionalInfo}"/>
+                                                    <Label Text="{Binding Details}" TextColor="{StaticResource SubtitleColor}" FontSize="11"/>
+                                                </VerticalStackLayout>
+
+                                                <Label Grid.Column="2" Text="{Binding Result}" TextColor="{Binding ResultColor}" FontAttributes="Bold" VerticalOptions="Center" FontSize="12" HorizontalTextAlignment="End"/>
+
+                                                <!-- LÍNEA DIVISORA -->
+                                                <BoxView Grid.Column="3" WidthRequest="1" BackgroundColor="#3F3F46" VerticalOptions="Fill" Margin="0,5"/>
+
+                                                <Button Grid.Column="4" Text="🗑️" BackgroundColor="Transparent" TextColor="#EF4444" FontSize="14" HeightRequest="35" WidthRequest="35" Padding="0" VerticalOptions="Center" CommandParameter="{Binding Id}" Clicked="OnDeletePastFightClicked"/>
+                                            </Grid>
+
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                            <Label x:Name="LblEmptyFights" Text="No hay combates registrados." TextColor="#A1A1AA" HorizontalOptions="Center" IsVisible="False"/>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- MENÚ FLOTANTE DE LOS 3 PUNTOS (SOLO EDITAR) -->
+        <Grid x:Name="MenuOptionsOverlay" IsVisible="False" BackgroundColor="#B3000000">
+            <Border BackgroundColor="#27272A" Padding="10" WidthRequest="180" HorizontalOptions="End" VerticalOptions="Start" Margin="20,70,20,0" StrokeShape="RoundRectangle 12" StrokeThickness="0">
+                <VerticalStackLayout Spacing="5">
+                    <Button Text="✏️ Editar Perfil" BackgroundColor="Transparent" TextColor="White" HorizontalOptions="Start" Clicked="OnMenuEditClicked" FontSize="14"/>
                 </VerticalStackLayout>
             </Border>
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCloseMenuTapped"/>
+            </Grid.GestureRecognizers>
+        </Grid>
 
-            <Grid ColumnDefinitions="*, *" RowDefinitions="*, *" RowSpacing="15" ColumnSpacing="15">
-                <Border Grid.Row="0" Grid.Column="0" Padding="15">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout HorizontalOptions="Center">
-                        <Label x:Name="LblAge" Text="25" FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
-                        <Label Text="Edad" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-                    </VerticalStackLayout>
-                </Border>
-                <Border Grid.Row="0" Grid.Column="1" Padding="15">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout HorizontalOptions="Center">
-                        <Label x:Name="LblWeight" Text="70 kg" FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
-                        <Label Text="Peso actual" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-                    </VerticalStackLayout>
-                </Border>
-                <Border Grid.Row="1" Grid.Column="0" Padding="15">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout HorizontalOptions="Center">
-                        <Label x:Name="LblHeight" Text="175 cm" FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
-                        <Label Text="Altura" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-                    </VerticalStackLayout>
-                </Border>
-                <Border Grid.Row="1" Grid.Column="1" Padding="15">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout HorizontalOptions="Center">
-                        <Label x:Name="LblImc" Text="22.9" FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
-                        <Label Text="IMC" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-                    </VerticalStackLayout>
-                </Border>
+        <!-- PANEL FLOTANTE PARA DESHACER ELIMINACIÓN -->
+        <Border x:Name="UndoPanel" IsVisible="False" BackgroundColor="#27272A" Padding="15,10" 
+                Stroke="#EAB308" StrokeThickness="1" StrokeShape="RoundRectangle 10" 
+                HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,30">
+            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="20">
+                <Label Text="Combate eliminado." TextColor="White" VerticalOptions="Center"/>
+                <Button Grid.Column="1" Text="DESHACER" TextColor="#EAB308" BackgroundColor="Transparent" 
+                        FontAttributes="Bold" FontSize="12" Clicked="OnUndoDeleteClicked" Padding="0"/>
             </Grid>
+        </Border>
 
-            <Border Padding="15">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="10"/>
-                </Border.StrokeShape>
-                <VerticalStackLayout Spacing="15">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="Control de peso" TextColor="White" VerticalOptions="Center"/>
-                        <Button Grid.Column="1" Text="+ Pesar" BackgroundColor="Transparent" BorderColor="#3F3F46" BorderWidth="1" TextColor="White" HeightRequest="35" CornerRadius="6" Padding="10,0" Clicked="OnToggleWeight"/>
-                    </Grid>
-                    <VerticalStackLayout x:Name="FormWeight" IsVisible="False" Spacing="10">
-                        <Label Text="Registrar peso" FontSize="16" FontAttributes="Bold" TextColor="White"/>
-                        <Label Text="Peso (kg)" TextColor="{StaticResource SubtitleColor}"/>
-                        <Entry x:Name="EntryNewWeight" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
-                        <Button Text="Guardar" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" Clicked="OnSaveWeight"/>
-                    </VerticalStackLayout>
-                </VerticalStackLayout>
-            </Border>
-
-            <Button Text="✏️ Editar perfil" BackgroundColor="Transparent" BorderColor="#3F3F46" BorderWidth="1" TextColor="White" CornerRadius="8" HeightRequest="45" Clicked="OnToggleEdit"/>
-
-            <Border x:Name="FormEdit" IsVisible="False" Padding="15" BackgroundColor="#18181B">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="10"/>
-                </Border.StrokeShape>
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Editar perfil" FontSize="18" FontAttributes="Bold" TextColor="White"/>
-                    <VerticalStackLayout Spacing="5">
-                        <Label Text="Nombre" TextColor="{StaticResource SubtitleColor}"/>
-                        <Entry x:Name="EntryName" BackgroundColor="#27272A" TextColor="White"/>
-                    </VerticalStackLayout>
-                    <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
-                        <VerticalStackLayout Spacing="5">
-                            <Label Text="Edad" TextColor="{StaticResource SubtitleColor}"/>
-                            <Entry x:Name="EntryAge" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
-                        </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1" Spacing="5">
-                            <Label Text="Altura (cm)" TextColor="{StaticResource SubtitleColor}"/>
-                            <Entry x:Name="EntryHeight" Keyboard="Numeric" BackgroundColor="#27272A" TextColor="White"/>
-                        </VerticalStackLayout>
-                    </Grid>
-                    <Button Text="Guardar perfil" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="8" Clicked="OnSaveProfile"/>
-                </VerticalStackLayout>
-            </Border>
-        </VerticalStackLayout>
-    </ScrollView>
+    </Grid>
 </ContentPage>

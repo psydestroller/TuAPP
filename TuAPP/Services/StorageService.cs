@@ -21,6 +21,13 @@ public static class StorageService
         Preferences.Set("workout_history", JsonSerializer.Serialize(list.Take(100).ToList()));
     }
 
+    // EL NUEVO MÉTODO CORREGIDO (misma llave "workout_history")
+    public static void SaveWorkoutHistory(List<WorkoutSession> history)
+    {
+        string json = JsonSerializer.Serialize(history);
+        Preferences.Set("workout_history", json);
+    }
+
     // --- PERFIL Y PESO ---
     public static AthleteProfile LoadProfile()
     {
@@ -42,7 +49,6 @@ public static class StorageService
         catch { return new FightEvent(); }
     }
 
-    // Este es el método que Visual Studio no encontraba
     public static void SaveFightEvent(FightEvent fightEvent)
     {
         Preferences.Set("fight_event", JsonSerializer.Serialize(fightEvent));

@@ -8,11 +8,10 @@ public partial class SettingsPage : ContentPage
     private bool _isInitializing = true;
     private IAudioPlayer? _previewPlayer;
 
-    // Variables para el menú flotante
     private string _currentCategory = "";
     private string _tempSoundSelection = "";
 
-    // Diccionario limpio: SOLO TUS 6 ALARMAS Y LA CAMPANA
+    // Diccionario blindado
     private readonly Dictionary<string, string> _soundMap = new()
     {
         { "Campana clásica", "bell.mp3" },
@@ -60,33 +59,38 @@ public partial class SettingsPage : ContentPage
         else TpReminder.Time = new TimeSpan(17, 0, 0);
     }
 
-    // Valores por defecto arreglados
+    // =========================================================
+    // FILTRO SANITIZADOR DE AUDIOS
+    // =========================================================
     private void LoadSoundSettings()
     {
-        // PREDETERMINADOS DE BOXEO
-        BtnSoundPrep.Text = GetNameByFilename(Preferences.Get("SoundPrep", "alarma_3.mp3"));
-        BtnSoundRoundStart.Text = GetNameByFilename(Preferences.Get("SoundRoundStart", "bell.mp3"));
-        BtnSound10Sec.Text = GetNameByFilename(Preferences.Get("Sound10Sec", "alarma_6.mp3"));
-        BtnSoundRoundEnd.Text = GetNameByFilename(Preferences.Get("SoundRoundEnd", "bell.mp3"));
+        // Usa el filtro GetSafeSoundName para destruir configuraciones viejas
+        BtnSoundPrep.Text = GetSafeSoundName("SoundPrep", "alarma_3.mp3");
+        BtnSoundRoundStart.Text = GetSafeSoundName("SoundRoundStart", "bell.mp3");
+        BtnSound10Sec.Text = GetSafeSoundName("Sound10Sec", "alarma_6.mp3");
+        BtnSoundRoundEnd.Text = GetSafeSoundName("SoundRoundEnd", "bell.mp3");
 
-        // PREDETERMINADOS DE SPRINTS
-        BtnSoundSprintPrep.Text = GetNameByFilename(Preferences.Get("SoundSprintPrep", "alarma_3.mp3"));
-        BtnSoundSprintWork.Text = GetNameByFilename(Preferences.Get("SoundSprintWork", "alarma_1.mp3"));
-        BtnSoundSprintRest.Text = GetNameByFilename(Preferences.Get("SoundSprintRest", "alarma_4.mp3"));
-        BtnSoundSprintEnd.Text = GetNameByFilename(Preferences.Get("SoundSprintEnd", "bell.mp3"));
+        BtnSoundSprintPrep.Text = GetSafeSoundName("SoundSprintPrep", "alarma_3.mp3");
+        BtnSoundSprintWork.Text = GetSafeSoundName("SoundSprintWork", "alarma_6.mp3");
+        BtnSoundSprintRest.Text = GetSafeSoundName("SoundSprintRest", "alarma_4.mp3");
+        BtnSoundSprintEnd.Text = GetSafeSoundName("SoundSprintEnd", "bell.mp3");
 
-        // Llenamos el menú flotante con las opciones
         CvSonidos.ItemsSource = _soundMap.Keys.ToList();
     }
 
-    private string GetNameByFilename(string filename)
+    // Si detecta un archivo que ya no existe (como whistle.mp3), lo borra y pone el que le digas.
+    private string GetSafeSoundName(string prefKey, string defaultFilename)
     {
-        return _soundMap.FirstOrDefault(x => x.Value == filename).Key ?? "Campana clásica";
-    }
+        string savedFile = Preferences.Get(prefKey, defaultFilename);
 
-    // =========================================================
-    // LÓGICA DEL MENÚ FLOTANTE
-    // =========================================================
+        if (!_soundMap.ContainsValue(savedFile))
+        {
+            Preferences.Set(prefKey, defaultFilename);
+            savedFile = defaultFilename;
+        }
+
+        return _soundMap.FirstOrDefault(x => x.Value == savedFile).Key ?? "Campana clásica";
+    }
 
     private void OnOpenMenuClicked(object? sender, EventArgs e)
     {
@@ -154,10 +158,6 @@ public partial class SettingsPage : ContentPage
             case "SprintEnd": Preferences.Set("SoundSprintEnd", filename); BtnSoundSprintEnd.Text = _tempSoundSelection; break;
         }
     }
-
-    // =========================================================
-    // OTROS EVENTOS
-    // =========================================================
 
     private void OnSettingsChanged(object? sender, EventArgs e)
     {

@@ -6,38 +6,67 @@
     <ScrollView Padding="20">
         <VerticalStackLayout Spacing="20">
             <VerticalStackLayout Spacing="0">
-                <Label Text="Calculadora IMC" FontSize="24" FontAttributes="Bold" TextColor="White"/>
+                <Label Text="Calculadora IMC y Grasa" FontSize="24" FontAttributes="Bold" TextColor="White"/>
                 <Label Text="Categoría de peso boxístico" FontSize="14" TextColor="{StaticResource SubtitleColor}"/>
             </VerticalStackLayout>
 
+            <!-- ENTRADA DE DATOS CON TECLADO NUMÉRICO -->
             <Border Padding="20">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="12"/>
                 </Border.StrokeShape>
-                <VerticalStackLayout Spacing="15">
+                <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="15">
 
-                    <Grid ColumnDefinitions="*, Auto">
-                        <Label Grid.Column="0" Text="Peso" TextColor="{StaticResource SubtitleColor}"/>
-                        <Label Grid.Column="1" x:Name="LblPesoVal" Text="70 kg" TextColor="White"/>
+                    <!-- GÉNERO -->
+                    <Label Text="Género" TextColor="White" VerticalOptions="Center" Grid.Row="0" Grid.Column="0" FontSize="16"/>
+                    <Grid Grid.Row="0" Grid.Column="1" WidthRequest="120">
+                        <Picker x:Name="PckGender" Title="Selecciona" TextColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" SelectedIndexChanged="OnInputChanged">
+                            <Picker.Items>
+                                <x:String>Hombre</x:String>
+                                <x:String>Mujer</x:String>
+                            </Picker.Items>
+                        </Picker>
+                        <!-- Guion verde inferior -->
+                        <BoxView Color="{StaticResource WorkColor}" HeightRequest="2" VerticalOptions="End" />
                     </Grid>
-                    <Slider x:Name="SldPeso" Minimum="40" Maximum="130" Value="70" MinimumTrackColor="White" ValueChanged="OnSliderChanged"/>
 
-                    <Grid ColumnDefinitions="*, Auto">
-                        <Label Grid.Column="0" Text="Altura" TextColor="{StaticResource SubtitleColor}"/>
-                        <Label Grid.Column="1" x:Name="LblAlturaVal" Text="175 cm" TextColor="White"/>
+                    <!-- EDAD -->
+                    <Label Text="Edad (Años)" TextColor="White" VerticalOptions="Center" Grid.Row="1" Grid.Column="0" FontSize="16"/>
+                    <Grid Grid.Row="1" Grid.Column="1" WidthRequest="120">
+                        <Entry x:Name="TxtAge" Keyboard="Numeric" TextColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" TextChanged="OnInputChanged" FontAttributes="Bold"/>
+                        <!-- Guion verde inferior -->
+                        <BoxView Color="{StaticResource WorkColor}" HeightRequest="2" VerticalOptions="End" />
                     </Grid>
-                    <Slider x:Name="SldAltura" Minimum="140" Maximum="210" Value="175" MinimumTrackColor="White" ValueChanged="OnSliderChanged"/>
 
-                </VerticalStackLayout>
+                    <!-- PESO -->
+                    <Label Text="Peso (kg)" TextColor="White" VerticalOptions="Center" Grid.Row="2" Grid.Column="0" FontSize="16"/>
+                    <Grid Grid.Row="2" Grid.Column="1" WidthRequest="120">
+                        <Entry x:Name="TxtWeight" Keyboard="Numeric" TextColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" TextChanged="OnInputChanged" FontAttributes="Bold"/>
+                        <!-- Guion verde inferior -->
+                        <BoxView Color="{StaticResource WorkColor}" HeightRequest="2" VerticalOptions="End" />
+                    </Grid>
+
+                    <!-- ALTURA -->
+                    <Label Text="Altura (cm)" TextColor="White" VerticalOptions="Center" Grid.Row="3" Grid.Column="0" FontSize="16"/>
+                    <Grid Grid.Row="3" Grid.Column="1" WidthRequest="120">
+                        <Entry x:Name="TxtHeight" Keyboard="Numeric" TextColor="White" BackgroundColor="#27272A" HorizontalTextAlignment="Center" TextChanged="OnInputChanged" FontAttributes="Bold"/>
+                        <!-- Guion verde inferior -->
+                        <BoxView Color="{StaticResource WorkColor}" HeightRequest="2" VerticalOptions="End" />
+                    </Grid>
+                </Grid>
             </Border>
 
+            <Button Text="GUARDAR EN PERFIL" BackgroundColor="{StaticResource WorkColor}" TextColor="Black" FontAttributes="Bold" CornerRadius="8" Clicked="OnCalculateClicked" />
+
+            <!-- RESULTADOS Y GRÁFICAS -->
             <Border Padding="20">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="12"/>
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                    <Label x:Name="LblIMCResult" Text="22.9" FontSize="48" FontAttributes="Bold" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
-                    <Label x:Name="LblIMCStatus" Text="Peso normal" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                    <Label x:Name="LblIMCResult" Text="--.-" FontSize="48" FontAttributes="Bold" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
+                    <Label x:Name="LblIMCStatus" Text="Ingresa tus datos" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
+                    <Label x:Name="LblBodyFat" Text="Grasa Corporal est.: --%" FontSize="14" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center" Margin="0,5,0,0"/>
 
                     <Border HeightRequest="12" Margin="0,10" WidthRequest="260">
                         <Border.StrokeShape>
@@ -66,24 +95,39 @@
                         </Border.StrokeShape>
                         <VerticalStackLayout>
                             <Label Text="Categoría boxística" FontSize="12" TextColor="{StaticResource SubtitleColor}" HorizontalOptions="Center"/>
-                            <Label x:Name="LblBoxCategory" Text="Ligero (67-70 kg)" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
+                            <Label x:Name="LblBoxCategory" Text="-- kg" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource WorkColor}" HorizontalOptions="Center"/>
                         </VerticalStackLayout>
                     </Border>
                 </VerticalStackLayout>
             </Border>
 
+            <!-- SECCIÓN DE CATEGORÍAS DE PESO -->
             <Border Padding="20" Margin="0,0,0,20">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="12"/>
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="CATEGORÍAS DE PESO" FontSize="12" TextColor="{StaticResource SubtitleColor}" FontAttributes="Bold"/>
-                    <CollectionView x:Name="ListCategories">
+                    <Label Text="REFERENCIA DE DIVISIONES" FontSize="12" TextColor="{StaticResource SubtitleColor}" FontAttributes="Bold"/>
+
+                    <!-- SWITCH DE MODO: AMATEUR VS PROFESIONAL -->
+                    <Border BackgroundColor="#18181B" Padding="4">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8"/>
+                        </Border.StrokeShape>
+                        <Grid ColumnDefinitions="*,*">
+                            <Button x:Name="BtnAmateur" Text="Amateur (IBA)" Grid.Column="0" CornerRadius="6" FontAttributes="Bold" BackgroundColor="{StaticResource WorkColor}" TextColor="Black" Clicked="OnModeAmateurClicked"/>
+                            <Button x:Name="BtnPro" Text="Profesional" Grid.Column="1" CornerRadius="6" FontAttributes="Bold" BackgroundColor="Transparent" TextColor="White" Clicked="OnModeProClicked"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- LISTA DINÁMICA DE CATEGORÍAS -->
+                    <CollectionView x:Name="ListCategories" Margin="0,10,0,0">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnDefinitions="*, Auto, Auto" Padding="0,10">
                                     <Label Grid.Column="0" Text="{Binding Name}" TextColor="{Binding TextColor}"/>
                                     <Label Grid.Column="1" Text="{Binding Range}" TextColor="{Binding TextColor}" Margin="0,0,10,0"/>
+                                    <!-- Marcador "Tú" automático -->
                                     <Border Grid.Column="2" IsVisible="{Binding IsUser}" BackgroundColor="#064E3B" Padding="8,2">
                                         <Border.StrokeShape>
                                             <RoundRectangle CornerRadius="6"/>
