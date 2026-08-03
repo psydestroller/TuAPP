@@ -5,7 +5,6 @@ using System.Globalization;
 
 namespace TuAPP;
 
-// Se agregó el ID para poder identificar cuál borrar o editar
 public class SessionDisplayModel
 {
     public Guid Id { get; set; }
@@ -17,17 +16,26 @@ public class SessionDisplayModel
     public string Feeling { get; set; } = string.Empty;
     public string Notes { get; set; } = string.Empty;
 
+    public string FocusArea { get; set; } = string.Empty;
+
+    // NUEVO: Variables para controlar la duración
+    public string DurationDisplay { get; set; } = string.Empty;
+    public int TotalSeconds { get; set; }
+
+    public double PostWeight { get; set; }
+
     public bool IsBoxing => RoundsCompleted > 0;
     public bool IsSprint => SprintsCompleted > 0;
     public bool HasNotes => !string.IsNullOrWhiteSpace(Notes);
+    public bool HasPostWeight => PostWeight > 0;
 }
 
 public partial class DashboardPage : ContentPage
 {
     public ObservableCollection<SessionDisplayModel> RecentSessions { get; set; } = new();
 
-    // Variable para saber si estamos editando un registro viejo
     private Guid? _editingSessionId = null;
+    private WorkoutSession? _recentlyDeletedSession = null;
 
     public DashboardPage()
     {
@@ -66,14 +74,18 @@ public partial class DashboardPage : ContentPage
         {
             RecentSessions.Add(new SessionDisplayModel
             {
-                Id = s.Id, // Pasamos el ID real
+                Id = s.Id,
                 Date = s.Date,
                 Type = TranslateWorkoutType(s.Type),
                 RoundsCompleted = s.RoundsCompleted,
                 SprintsCompleted = s.SprintsCompleted,
                 Intensity = string.IsNullOrEmpty(s.Intensity) ? "Media" : s.Intensity,
                 Feeling = string.IsNullOrEmpty(s.Feeling) ? "Normal" : s.Feeling,
-                Notes = s.Notes
+                Notes = s.Notes,
+                FocusArea = string.IsNullOrEmpty(s.FocusArea) ? "General" : s.FocusArea,
+                TotalSeconds = s.TotalSeconds,
+                DurationDisplay = s.TotalSeconds > 0 ? $"{s.TotalSeconds / 60} min" : "--",
+                PostWeight = s.PostWeight
             });
         }
 
@@ -108,7 +120,6 @@ public partial class DashboardPage : ContentPage
     {
         if (double.TryParse(EntryTargetWeight.Text?.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double targetW) && targetW > 0)
         {
-            // AQUÍ ESTÁ EL REPARO: Agregamos el "?? DateTime.Today" de nuevo
             DateTime safeDate = DpFightDate.Date ?? DateTime.Today;
 
             var fight = new FightEvent { Date = safeDate, TargetWeightKg = targetW };
@@ -120,20 +131,89 @@ public partial class DashboardPage : ContentPage
     }
 
     // =======================================================
-    // LOGICA DE AGREGAR, EDITAR Y ELIMINAR BITÁCORA
+    // FUNCIONES INTELIGENTES PARA LAS 9 OPCIONES DE EQUIPO
+    // =======================================================
+    private string GetSelectedFocusAreas()
+    {
+        var list = new List<string>();
+
+        if (ChkFocusSparring.IsChecked) list.Add("Sparring");
+        if (ChkFocusCostal.IsChecked) list.Add("Costal");
+        if (ChkFocusManoplas.IsChecked) list.Add("Manoplas");
+        if (ChkFocusGobernadora.IsChecked) list.Add("Gobernadora");
+        if (ChkFocusPerilla.IsChecked) list.Add("Perilla");
+        if (ChkFocusPeraLoca.IsChecked) list.Add("Pera loca");
+        if (ChkFocusTecnica.IsChecked) list.Add("Técnica/Sombra");
+        if (ChkFocusFisico.IsChecked) list.Add("Físico/Cardio");
+
+        if (ChkFocusOtro.IsChecked && !string.IsNullOrWhiteSpace(EntryOtherFocus.Text))
+        {
+            list.Add(EntryOtherFocus.Text.Trim());
+        }
+
+        if (list.Count == 0) return "General";
+        return string.Join(", ", list);
+    }
+
+    private void SetSelectedFocusAreas(string focusStr)
+    {
+        if (string.IsNullOrEmpty(focusStr)) focusStr = "";
+
+        var focuses = focusStr.Split(',').Select(f => f.Trim()).ToList();
+
+        ChkFocusSparring.IsChecked = focuses.Contains("Sparring");
+        ChkFocusCostal.IsChecked = focuses.Contains("Costal");
+        ChkFocusManoplas.IsChecked = focuses.Contains("Manoplas");
+        ChkFocusGobernadora.IsChecked = focuses.Contains("Gobernadora");
+        ChkFocusPerilla.IsChecked = focuses.Contains("Perilla");
+        ChkFocusPeraLoca.IsChecked = focuses.Contains("Pera loca");
+        ChkFocusTecnica.IsChecked = focuses.Contains("Técnica/Sombra");
+        ChkFocusFisico.IsChecked = focuses.Contains("Físico/Cardio");
+
+        var predefined = new List<string> { "Sparring", "Costal", "Manoplas", "Gobernadora", "Perilla", "Pera loca", "Técnica/Sombra", "Físico/Cardio", "General" };
+        var customFocuses = focuses.Where(f => !predefined.Contains(f) && !string.IsNullOrEmpty(f)).ToList();
+
+        if (customFocuses.Any())
+        {
+            ChkFocusOtro.IsChecked = true;
+            EntryOtherFocus.Text = string.Join(", ", customFocuses);
+        }
+        else
+        {
+            ChkFocusOtro.IsChecked = false;
+            EntryOtherFocus.Text = string.Empty;
+        }
+    }
+
+    // =======================================================
+    // LOGICA DE AGREGAR Y EDITAR BITÁCORA
     // =======================================================
 
     private void OnToggleAddJournal(object sender, EventArgs e)
     {
-        _editingSessionId = null; // Como es uno nuevo, limpiamos el ID
-        LblJournalTitle.Text = "¿Cómo te fue hoy?";
+        _editingSessionId = null;
+        LblJournalTitle.Text = "Registrar Nuevo Entrenamiento";
         BtnSaveJournal.Text = "Guardar en Bitácora";
 
         FormAddJournal.IsVisible = !FormAddJournal.IsVisible;
         if (FormAddJournal.IsVisible)
         {
             PckIntensity.SelectedIndex = 1;
-            PckFeeling.SelectedIndex = 1;
+
+            // Limpiar Checkboxes
+            ChkFocusSparring.IsChecked = false;
+            ChkFocusCostal.IsChecked = false;
+            ChkFocusManoplas.IsChecked = false;
+            ChkFocusGobernadora.IsChecked = false;
+            ChkFocusPerilla.IsChecked = false;
+            ChkFocusPeraLoca.IsChecked = false;
+            ChkFocusTecnica.IsChecked = false;
+            ChkFocusFisico.IsChecked = false;
+            ChkFocusOtro.IsChecked = false;
+            EntryOtherFocus.Text = string.Empty;
+
+            EntryDuration.Text = string.Empty;
+            EntryPostWeight.Text = string.Empty;
             EdtNotes.Text = string.Empty;
         }
     }
@@ -142,15 +222,16 @@ public partial class DashboardPage : ContentPage
     {
         if (sender is Button btn && btn.CommandParameter is SessionDisplayModel model)
         {
-            // Guardamos el ID que estamos editando
             _editingSessionId = model.Id;
 
-            // Llenamos el formulario con sus datos actuales
             PckIntensity.SelectedItem = model.Intensity;
-            PckFeeling.SelectedItem = model.Feeling;
+            EntryDuration.Text = model.TotalSeconds > 0 ? (model.TotalSeconds / 60).ToString() : "";
+
+            SetSelectedFocusAreas(model.FocusArea);
+
+            EntryPostWeight.Text = model.PostWeight > 0 ? model.PostWeight.ToString("0.##", CultureInfo.InvariantCulture) : "";
             EdtNotes.Text = model.Notes;
 
-            // Cambiamos los textos
             LblJournalTitle.Text = "Editar Entrenamiento";
             BtnSaveJournal.Text = "Guardar Cambios";
 
@@ -158,55 +239,39 @@ public partial class DashboardPage : ContentPage
         }
     }
 
-    private async void OnDeleteSessionClicked(object sender, EventArgs e)
-    {
-        if (sender is Button btn && btn.CommandParameter is SessionDisplayModel model)
-        {
-            bool answer = await DisplayAlert("Eliminar", "¿Seguro que deseas borrar este registro de tu campamento?", "Sí, borrar", "Cancelar");
-            if (answer)
-            {
-                var history = StorageService.LoadWorkoutHistory() ?? new List<WorkoutSession>();
-                var itemToRemove = history.FirstOrDefault(x => x.Id == model.Id);
-
-                if (itemToRemove != null)
-                {
-                    history.Remove(itemToRemove);
-                    StorageService.SaveWorkoutHistory(history); // Guarda la lista sin ese elemento
-                    LoadDashboardData(); // Recarga la pantalla
-                }
-            }
-        }
-    }
-
     private void OnSaveJournal(object sender, EventArgs e)
     {
         var history = StorageService.LoadWorkoutHistory() ?? new List<WorkoutSession>();
 
+        double.TryParse(EntryPostWeight.Text?.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double postW);
+        int.TryParse(EntryDuration.Text, out int durationMins);
+        int totalSecs = durationMins * 60; // Convertimos los minutos ingresados a segundos
+
         if (_editingSessionId.HasValue)
         {
-            // MODIFICAR EXISTENTE
             var existingSession = history.FirstOrDefault(x => x.Id == _editingSessionId.Value);
             if (existingSession != null)
             {
                 existingSession.Intensity = PckIntensity.SelectedItem?.ToString() ?? "Media";
-                existingSession.Feeling = PckFeeling.SelectedItem?.ToString() ?? "Normal";
+                existingSession.TotalSeconds = totalSecs;
+                existingSession.FocusArea = GetSelectedFocusAreas();
+                existingSession.PostWeight = postW;
                 existingSession.Notes = EdtNotes.Text ?? string.Empty;
             }
-            StorageService.SaveWorkoutHistory(history); // Sobrescribimos la base de datos
-            DisplayAlert("Actualizado", "El registro ha sido modificado.", "OK");
+            StorageService.SaveWorkoutHistory(history);
         }
         else
         {
-            // CREAR UNO NUEVO
             var manualSession = new WorkoutSession
             {
                 Id = Guid.NewGuid(),
                 Date = DateTime.Now,
                 Type = WorkoutType.Other,
                 Intensity = PckIntensity.SelectedItem?.ToString() ?? "Media",
-                Feeling = PckFeeling.SelectedItem?.ToString() ?? "Normal",
+                TotalSeconds = totalSecs,
+                FocusArea = GetSelectedFocusAreas(),
+                PostWeight = postW,
                 Notes = EdtNotes.Text ?? string.Empty,
-                TotalSeconds = 0,
                 CaloriesBurned = 0,
                 RoundsCompleted = 0,
                 TotalRounds = 0
@@ -214,12 +279,58 @@ public partial class DashboardPage : ContentPage
 
             history.Add(manualSession);
             StorageService.SaveWorkoutHistory(history);
-            DisplayAlert("Bitácora Guardada", "Tu registro del día ha sido añadido.", "OK");
         }
 
-        // Limpiamos todo al terminar
         LoadDashboardData();
         FormAddJournal.IsVisible = false;
         _editingSessionId = null;
+    }
+
+    // =======================================================
+    // LOGICA DE ELIMINAR Y DESHACER (ESTILO TOAST)
+    // =======================================================
+
+    private async void OnDeleteSessionClicked(object sender, EventArgs e)
+    {
+        if (sender is Button btn && btn.CommandParameter is SessionDisplayModel model)
+        {
+            var history = StorageService.LoadWorkoutHistory() ?? new List<WorkoutSession>();
+            var itemToRemove = history.FirstOrDefault(x => x.Id == model.Id);
+
+            if (itemToRemove != null)
+            {
+                _recentlyDeletedSession = itemToRemove;
+
+                history.Remove(itemToRemove);
+                StorageService.SaveWorkoutHistory(history);
+                LoadDashboardData();
+
+                UndoPanel.IsVisible = true;
+
+                await Task.Delay(5000);
+
+                if (_recentlyDeletedSession != null && _recentlyDeletedSession.Id == itemToRemove.Id)
+                {
+                    UndoPanel.IsVisible = false;
+                    _recentlyDeletedSession = null;
+                }
+            }
+        }
+    }
+
+    private void OnUndoDeleteClicked(object sender, EventArgs e)
+    {
+        if (_recentlyDeletedSession != null)
+        {
+            var history = StorageService.LoadWorkoutHistory() ?? new List<WorkoutSession>();
+
+            history.Add(_recentlyDeletedSession);
+            StorageService.SaveWorkoutHistory(history);
+
+            _recentlyDeletedSession = null;
+            UndoPanel.IsVisible = false;
+
+            LoadDashboardData();
+        }
     }
 }

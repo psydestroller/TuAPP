@@ -16,33 +16,33 @@
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Text="Preparación" VerticalOptions="Center" FontSize="16" TextColor="{StaticResource PrepColor}"/>
                         <HorizontalStackLayout Grid.Column="1" Spacing="5">
-                            <Picker x:Name="PckPrepMin" Title="Min" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent"/>
+                            <Picker x:Name="PckPrepMin" Title="Min" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent" SelectedIndexChanged="OnSprintConfigChanged"/>
                             <Label Text=":" VerticalOptions="Center" TextColor="White" FontAttributes="Bold"/>
-                            <Picker x:Name="PckPrepSec" Title="Seg" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent"/>
+                            <Picker x:Name="PckPrepSec" Title="Seg" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent" SelectedIndexChanged="OnSprintConfigChanged"/>
                         </HorizontalStackLayout>
                     </Grid>
                     <BoxView HeightRequest="1" Color="#333333" />
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Text="Tiempo de Sprint" VerticalOptions="Center" FontSize="16" TextColor="{StaticResource WorkColor}"/>
                         <HorizontalStackLayout Grid.Column="1" Spacing="5">
-                            <Picker x:Name="PckWorkMin" Title="Min" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent"/>
+                            <Picker x:Name="PckWorkMin" Title="Min" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent" SelectedIndexChanged="OnSprintConfigChanged"/>
                             <Label Text=":" VerticalOptions="Center" TextColor="White" FontAttributes="Bold"/>
-                            <Picker x:Name="PckWorkSec" Title="Seg" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent"/>
+                            <Picker x:Name="PckWorkSec" Title="Seg" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent" SelectedIndexChanged="OnSprintConfigChanged"/>
                         </HorizontalStackLayout>
                     </Grid>
                     <BoxView HeightRequest="1" Color="#333333" />
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Text="Recuperación" VerticalOptions="Center" FontSize="16" TextColor="{StaticResource RestColor}"/>
                         <HorizontalStackLayout Grid.Column="1" Spacing="5">
-                            <Picker x:Name="PckRestMin" Title="Min" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent"/>
+                            <Picker x:Name="PckRestMin" Title="Min" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent" SelectedIndexChanged="OnSprintConfigChanged"/>
                             <Label Text=":" VerticalOptions="Center" TextColor="White" FontAttributes="Bold"/>
-                            <Picker x:Name="PckRestSec" Title="Seg" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent"/>
+                            <Picker x:Name="PckRestSec" Title="Seg" WidthRequest="65" TextColor="White" TitleColor="White" BackgroundColor="Transparent" SelectedIndexChanged="OnSprintConfigChanged"/>
                         </HorizontalStackLayout>
                     </Grid>
                     <BoxView HeightRequest="1" Color="#333333" />
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Text="Número de Sprints" VerticalOptions="Center" FontSize="16" TextColor="White"/>
-                        <Picker x:Name="PckSets" Title="Sets" Grid.Column="1" WidthRequest="80" TextColor="White" TitleColor="White" BackgroundColor="Transparent" HorizontalTextAlignment="Center"/>
+                        <Picker x:Name="PckSets" Title="Sets" Grid.Column="1" WidthRequest="80" TextColor="White" TitleColor="White" BackgroundColor="Transparent" HorizontalTextAlignment="Center" SelectedIndexChanged="OnSprintConfigChanged"/>
                     </Grid>
                 </VerticalStackLayout>
             </Border>

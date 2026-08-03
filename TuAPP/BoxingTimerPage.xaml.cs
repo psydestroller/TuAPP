@@ -1,5 +1,4 @@
 ﻿using Plugin.Maui.Audio;
-using TuAPP.Models;
 using TuAPP.Services;
 
 namespace TuAPP;
@@ -11,11 +10,9 @@ public partial class BoxingTimerPage : ContentPage
     private int _cfgRounds, _cfgWork, _cfgRest, _cfgPrep;
     private int _currentRound = 1, _timeLeft, _currentMaxTime;
     private bool _isTimerRunning = false;
-    private bool _isSaving = false;
 
     private readonly Dictionary<string, IAudioPlayer> _audioPlayers = new();
     private DateTime _lastTransitionTime = DateTime.MinValue;
-    private DateTime _phaseEndTime;
 
     public BoxingTimerPage()
     {
@@ -49,7 +46,6 @@ public partial class BoxingTimerPage : ContentPage
         }
     }
 
-    // FILTRO: Obliga a usar el sonido por defecto si el guardado se borró o no existe
     private void PlayConfiguredSound(string preferenceKey, string defaultSoundName)
     {
         if (!Preferences.Get("UseSound", true)) return;
@@ -98,17 +94,19 @@ public partial class BoxingTimerPage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            if (!_isTimerRunning) return;
+            if (!_isTimerRunning)
+            {
+                _isTimerRunning = true;
+                UpdateUI();
+            }
 
-            int atomicSecondsLeft = (int)Math.Ceiling((_phaseEndTime - DateTime.Now).TotalSeconds);
-
-            if (atomicSecondsLeft <= 0)
+            if (secondsLeft <= 0)
             {
                 AdvanceState();
             }
             else
             {
-                _timeLeft = atomicSecondsLeft;
+                _timeLeft = secondsLeft;
 
                 if (_timeLeft == 10 && _currentState == TimerState.Work)
                 {
@@ -145,14 +143,12 @@ public partial class BoxingTimerPage : ContentPage
                 _currentMaxTime = _timeLeft;
                 if (_cfgPrep == 0) _currentState = TimerState.Work;
 
-                _phaseEndTime = DateTime.Now.AddSeconds(_timeLeft);
                 ForegroundTimerBridge.Start(_timeLeft, GetPhaseName(_currentState));
 
                 PlayConfiguredSound("SoundPrep", "alarma_3.mp3");
             }
             else
             {
-                _phaseEndTime = DateTime.Now.AddSeconds(_timeLeft);
                 ForegroundTimerBridge.Resume();
             }
 
@@ -183,13 +179,13 @@ public partial class BoxingTimerPage : ContentPage
         {
             if (_currentRound >= _cfgRounds)
             {
+                // EL CRONÓMETRO TERMINÓ: Solo detenemos todo, sonamos la campana y reiniciamos
                 _isTimerRunning = false;
                 ForegroundTimerBridge.Stop();
                 DeviceDisplay.Current.KeepScreenOn = false;
 
                 PlayConfiguredSound("SoundRoundEnd", "bell.mp3");
 
-                SaveWorkout();
                 ResetTimer();
                 return;
             }
@@ -206,8 +202,6 @@ public partial class BoxingTimerPage : ContentPage
             }
         }
 
-        _phaseEndTime = DateTime.Now.AddSeconds(_timeLeft);
-
         if (_isTimerRunning)
         {
             ForegroundTimerBridge.Start(_timeLeft, GetPhaseName(_currentState));
@@ -218,37 +212,6 @@ public partial class BoxingTimerPage : ContentPage
         }
 
         UpdateUI();
-    }
-
-    private void SaveWorkout()
-    {
-        if (_isSaving) return;
-        _isSaving = true;
-
-        string selected = PckWorkoutType.SelectedItem?.ToString() ?? "Classic boxing";
-        WorkoutType currentWorkoutType = WorkoutType.ClassicBoxing;
-        if (selected.Contains("Sombra")) currentWorkoutType = WorkoutType.Shadow;
-        if (selected.Contains("Costal")) currentWorkoutType = WorkoutType.HeavyBag;
-        if (selected.Contains("Sparring")) currentWorkoutType = WorkoutType.Sparring;
-        if (selected.Contains("Cuerda")) currentWorkoutType = WorkoutType.JumpRope;
-
-        var profile = StorageService.LoadProfile();
-        int totalSecs = (_cfgRounds * _cfgWork) + ((_cfgRounds - 1) * _cfgRest);
-        double calsBurned = CalorieCalculator.Calculate(currentWorkoutType, profile.WeightKg, totalSecs);
-
-        var session = new WorkoutSession
-        {
-            Type = currentWorkoutType,
-            TotalRounds = _cfgRounds,
-            RoundsCompleted = _currentRound,
-            TotalSeconds = totalSecs,
-            CaloriesBurned = calsBurned,
-            Notes = "Guardado automático"
-        };
-        StorageService.AddWorkoutSession(session);
-
-        Navigation.PushModalAsync(new WorkoutSummaryPage(session));
-        _isSaving = false;
     }
 
     private void OnResetClicked(object? sender, EventArgs e)

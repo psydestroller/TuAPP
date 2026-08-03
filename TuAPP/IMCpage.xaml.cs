@@ -11,8 +11,6 @@ public class WeightCategory : INotifyPropertyChanged
     private bool _isUser = false;
     public string Name { get; set; } = string.Empty;
     public string Range { get; set; } = string.Empty;
-
-    // El secreto: este valor numérico permite a la app evaluar matemáticamente
     public double MaxWeight { get; set; } = 0;
     public Color TextColor { get; set; } = Colors.White;
 
@@ -40,13 +38,13 @@ public partial class IMCpage : ContentPage
 {
     public ObservableCollection<WeightCategory> Categories { get; set; } = new();
     private bool _isInitializing = true;
-    private bool _isAmateurMode = true; // Por defecto arrancamos en Amateur
+    private bool _isAmateurMode = true;
 
     public IMCpage()
     {
         InitializeComponent();
         ListCategories.ItemsSource = Categories;
-        LoadAmateurCategories(); // Carga IBA por defecto
+        LoadAmateurCategories();
     }
 
     protected override void OnAppearing()
@@ -59,29 +57,26 @@ public partial class IMCpage : ContentPage
         TxtWeight.Text = profile.WeightKg > 0 ? profile.WeightKg.ToString("F1") : "65.0";
         TxtHeight.Text = profile.HeightCm > 0 ? profile.HeightCm.ToString("F0") : "175";
 
-        PckGender.SelectedIndex = 0;
-        TxtAge.Text = "17";
+        // EL FIX MAGISTRAL: Ahora lee la base de datos en lugar de forzar "0" y "17"
+        PckGender.SelectedIndex = profile.GenderIndex;
+        TxtAge.Text = profile.Age > 0 ? profile.Age.ToString() : "17";
 
         _isInitializing = false;
         CalculateAndSaveIMC(false);
     }
 
-    // ==========================================================
-    // CAMBIO DE MODOS (AMATEUR VS PROFESIONAL)
-    // ==========================================================
     private void OnModeAmateurClicked(object sender, EventArgs e)
     {
         if (_isAmateurMode) return;
         _isAmateurMode = true;
 
-        // Estilos del botón
-        BtnAmateur.BackgroundColor = Color.FromArgb("#00E676"); // WorkColor
+        BtnAmateur.BackgroundColor = Color.FromArgb("#00E676");
         BtnAmateur.TextColor = Colors.Black;
         BtnPro.BackgroundColor = Colors.Transparent;
         BtnPro.TextColor = Colors.White;
 
         LoadAmateurCategories();
-        CalculateAndSaveIMC(false); // Re-evaluar el peso en la nueva lista
+        CalculateAndSaveIMC(false);
     }
 
     private void OnModeProClicked(object sender, EventArgs e)
@@ -89,19 +84,15 @@ public partial class IMCpage : ContentPage
         if (!_isAmateurMode) return;
         _isAmateurMode = false;
 
-        // Estilos del botón
-        BtnPro.BackgroundColor = Color.FromArgb("#00E676"); // WorkColor
+        BtnPro.BackgroundColor = Color.FromArgb("#00E676");
         BtnPro.TextColor = Colors.Black;
         BtnAmateur.BackgroundColor = Colors.Transparent;
         BtnAmateur.TextColor = Colors.White;
 
         LoadProfessionalCategories();
-        CalculateAndSaveIMC(false); // Re-evaluar el peso en la nueva lista
+        CalculateAndSaveIMC(false);
     }
 
-    // ==========================================================
-    // LOGICA DE DATOS
-    // ==========================================================
     private void OnInputChanged(object sender, EventArgs e)
     {
         if (_isInitializing) return;
@@ -111,7 +102,7 @@ public partial class IMCpage : ContentPage
     private void OnCalculateClicked(object sender, EventArgs e)
     {
         CalculateAndSaveIMC(true);
-        DisplayAlert("IMC Guardado", "Peso y altura sincronizados con tu Perfil.", "OK");
+        DisplayAlert("Perfil Actualizado", "Tus datos físicos han sido sincronizados.", "OK");
     }
 
     private void CalculateAndSaveIMC(bool saveToProfile)
@@ -153,6 +144,11 @@ public partial class IMCpage : ContentPage
             var profile = StorageService.LoadProfile();
             profile.WeightKg = weightKg;
             profile.HeightCm = heightCm;
+
+            // EL FIX DE GUARDADO: Guardamos la edad y el género exactos
+            profile.Age = age;
+            profile.GenderIndex = PckGender.SelectedIndex;
+
             StorageService.SaveProfile(profile);
         }
     }
@@ -161,15 +157,14 @@ public partial class IMCpage : ContentPage
     {
         foreach (var c in Categories) c.IsUser = false;
 
-        WeightCategory current = Categories.Last(); // Por defecto asume el más pesado
+        WeightCategory current = Categories.Last();
 
-        // Busca automáticamente en cuál categoría encaja según el MaxWeight configurado
         foreach (var c in Categories)
         {
             if (weight <= c.MaxWeight)
             {
                 current = c;
-                break; // Encontramos la categoría, detenemos la búsqueda
+                break;
             }
         }
 
@@ -180,8 +175,6 @@ public partial class IMCpage : ContentPage
     // ==========================================================
     // LISTAS OFICIALES REGLAMENTARIAS
     // ==========================================================
-
-    // REGLAMENTO IBA (Asociación Internacional de Boxeo Amateur - Masculino Elite)
     private void LoadAmateurCategories()
     {
         Categories.Clear();
@@ -200,7 +193,6 @@ public partial class IMCpage : ContentPage
         Categories.Add(new WeightCategory { Name = "Súper Pesado", Range = "+92 kg", MaxWeight = double.MaxValue });
     }
 
-    // REGLAMENTO PROFESIONAL (CMB, AMB, OMB, FIB)
     private void LoadProfessionalCategories()
     {
         Categories.Clear();

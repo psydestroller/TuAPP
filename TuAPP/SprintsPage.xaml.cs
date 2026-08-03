@@ -11,6 +11,7 @@ public partial class SprintsPage : ContentPage
     private int _timeLeft, _currentSet = 1, _cfgPrep, _cfgWork, _cfgRest, _cfgSets;
 
     private IAudioPlayer? _sprintPlayer;
+    private bool _isInitializing = true; // NUEVO: Evita que guarde datos antes de cargar
 
     public SprintsPage()
     {
@@ -27,7 +28,6 @@ public partial class SprintsPage : ContentPage
 
         string filename = Preferences.Get(prefKey, defaultFile);
 
-        // FILTRO: Si el archivo no es válido, forza el predeterminado para no romperse
         if (filename != "bell.mp3" && !filename.StartsWith("alarma_"))
         {
             filename = defaultFile;
@@ -60,10 +60,30 @@ public partial class SprintsPage : ContentPage
         PckRestMin.ItemsSource = timeList; PckRestSec.ItemsSource = timeList;
         PckSets.ItemsSource = setsList;
 
-        PckPrepMin.SelectedIndex = 0; PckPrepSec.SelectedIndex = 5;
-        PckWorkMin.SelectedIndex = 0; PckWorkSec.SelectedIndex = 30;
-        PckRestMin.SelectedIndex = 1; PckRestSec.SelectedIndex = 0;
-        PckSets.SelectedIndex = 9;
+        // NUEVO: Lee de Preferences, y si no hay nada, usa los valores por defecto
+        PckPrepMin.SelectedIndex = Preferences.Get("SprintPrepMin", 0);
+        PckPrepSec.SelectedIndex = Preferences.Get("SprintPrepSec", 5);
+        PckWorkMin.SelectedIndex = Preferences.Get("SprintWorkMin", 0);
+        PckWorkSec.SelectedIndex = Preferences.Get("SprintWorkSec", 30);
+        PckRestMin.SelectedIndex = Preferences.Get("SprintRestMin", 1);
+        PckRestSec.SelectedIndex = Preferences.Get("SprintRestSec", 0);
+        PckSets.SelectedIndex = Preferences.Get("SprintSets", 9);
+
+        _isInitializing = false; // Ya terminó de cargar, ahora sí puede guardar cambios
+    }
+
+    // NUEVO: Función que se dispara cada que mueves una ruleta
+    private void OnSprintConfigChanged(object? sender, EventArgs e)
+    {
+        if (_isInitializing) return;
+
+        Preferences.Set("SprintPrepMin", PckPrepMin.SelectedIndex);
+        Preferences.Set("SprintPrepSec", PckPrepSec.SelectedIndex);
+        Preferences.Set("SprintWorkMin", PckWorkMin.SelectedIndex);
+        Preferences.Set("SprintWorkSec", PckWorkSec.SelectedIndex);
+        Preferences.Set("SprintRestMin", PckRestMin.SelectedIndex);
+        Preferences.Set("SprintRestSec", PckRestSec.SelectedIndex);
+        Preferences.Set("SprintSets", PckSets.SelectedIndex);
     }
 
     private void OnStartSprintsClicked(object? sender, EventArgs e)
@@ -92,7 +112,7 @@ public partial class SprintsPage : ContentPage
                 if (_currentState == SprintState.Prep)
                     PlaySprintSound("SoundSprintPrep", "alarma_3.mp3");
                 else
-                    PlaySprintSound("SoundSprintWork", "alarma_6.mp3"); // Sincronizado a alarma_6
+                    PlaySprintSound("SoundSprintWork", "alarma_6.mp3");
             }
             _sprintTimer.Start();
             if (Preferences.Get("KeepScreenOn", true)) DeviceDisplay.Current.KeepScreenOn = true;
@@ -131,7 +151,7 @@ public partial class SprintsPage : ContentPage
             _currentState = SprintState.Sprint;
             _timeLeft = _cfgWork;
 
-            PlaySprintSound("SoundSprintWork", "alarma_6.mp3"); // Sincronizado a alarma_6
+            PlaySprintSound("SoundSprintWork", "alarma_6.mp3");
         }
         else if (_currentState == SprintState.Sprint)
         {

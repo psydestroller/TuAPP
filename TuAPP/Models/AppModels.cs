@@ -26,6 +26,11 @@ public class WorkoutSession
     public string Feeling { get; set; } = "Normal";
     public int SprintsCompleted { get; set; } = 0;
 
+    // ¡AQUÍ ESTÁN LOS 3 CAMPOS NUEVOS QUE FALTABAN PARA EL DIARIO!
+    public string FocusArea { get; set; } = "General";
+    public string SleepQuality { get; set; } = "Regular";
+    public double PostWeight { get; set; } = 0;
+
     public string TypeLabel => Type switch
     {
         WorkoutType.ClassicBoxing => "Boxeo Clásico",
@@ -87,6 +92,7 @@ public class AthleteProfile
     public int Age { get; set; } = 17;
     public double HeightCm { get; set; } = 170.0;
     public string ProfileImagePath { get; set; } = "";
+    public int GenderIndex { get; set; } = 0;
     public int Wins { get; set; } = 0;
     public int Losses { get; set; } = 0;
     public int Draws { get; set; } = 0;

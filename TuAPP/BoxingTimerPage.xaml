@@ -9,18 +9,8 @@
     <Grid RowDefinitions="Auto, *, Auto" Padding="20,40,20,30">
 
         <VerticalStackLayout Grid.Row="0" Spacing="15" HorizontalOptions="Center">
-            <Picker x:Name="PckWorkoutType" TextColor="White" FontSize="22" FontAttributes="Bold" HorizontalTextAlignment="Center" BackgroundColor="Transparent" Title="Elige Modalidad">
-                <Picker.ItemsSource>
-                    <x:Array Type="{x:Type x:String}">
-                        <x:String>Boxeo</x:String>
-                        <x:String>Sombra</x:String>
-                        <x:String>Costal</x:String>
-                        <x:String>Sparring</x:String>
-                        <x:String>Cuerda</x:String>
-                    </x:Array>
-                </Picker.ItemsSource>
-                <Picker.SelectedIndex>0</Picker.SelectedIndex>
-            </Picker>
+            <!-- NUEVO: Título fijo en lugar de Picker -->
+            <Label Text="CRONÓMETRO" TextColor="White" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" CharacterSpacing="2"/>
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="40" HorizontalOptions="Center">
                 <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
