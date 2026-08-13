@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TuAPP.IMCpage" BackgroundColor="{StaticResource BackgroundColor}">
+             x:Class="TuAPP.IMCpage" BackgroundColor="{StaticResource BackgroundColor}"
+             xmlns:admob="clr-namespace:Plugin.AdMob;assembly=Plugin.AdMob" >
 
     <ScrollView Padding="20">
         <VerticalStackLayout Spacing="20">
@@ -139,7 +140,15 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
+                
             </Border>
+            <admob:BannerAd
+Grid.Row="0"
+AdUnitId="ca-app-pub-5227773888709145/1822865434"
+    AdSize="FullBanner"
+    HorizontalOptions="Fill"
+Margin="0,0,0,0"
+HeightRequest="60" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

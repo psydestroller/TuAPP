@@ -59,6 +59,12 @@
                             <VerticalStackLayout Spacing="15">
                                 <Label x:Name="LblJournalTitle" Text="¿Cómo te fue hoy?" FontAttributes="Bold" TextColor="White" FontSize="14"/>
 
+                                <!-- NUEVO: SELECTOR DE FECHA DEL ENTRENAMIENTO -->
+                                <VerticalStackLayout Spacing="5">
+                                    <Label Text="Fecha del Entrenamiento" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
+                                    <DatePicker x:Name="DpSessionDate" BackgroundColor="#18181B" TextColor="White"/>
+                                </VerticalStackLayout>
+
                                 <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
                                     <VerticalStackLayout Spacing="5">
                                         <Label Text="Intensidad" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
@@ -72,7 +78,6 @@
                                         </Picker>
                                     </VerticalStackLayout>
 
-                                    <!-- NUEVO: DURACIÓN EN LUGAR DE DESCANSO -->
                                     <VerticalStackLayout Grid.Column="1" Spacing="5">
                                         <Label Text="Duración (minutos)" TextColor="{StaticResource SubtitleColor}" FontSize="12"/>
                                         <Entry x:Name="EntryDuration" Keyboard="Numeric" BackgroundColor="#18181B" TextColor="White" Placeholder="Ej. 90"/>
@@ -180,7 +185,6 @@
                                         <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto" RowSpacing="5">
                                             <Label Grid.Row="0" Grid.Column="0" Text="{Binding FocusArea, StringFormat='Equip/Enfoque: {0}'}" TextColor="White" FontSize="11" FontAttributes="Bold"/>
                                             <Label Grid.Row="0" Grid.Column="1" Text="{Binding Intensity, StringFormat='Intensidad: {0}'}" TextColor="#EAB308" FontSize="12" HorizontalOptions="End"/>
-                                            <!-- NUEVO: MUESTRA LA DURACIÓN -->
                                             <Label Grid.Row="1" Grid.Column="0" Text="{Binding DurationDisplay, StringFormat='Duración: {0}'}" TextColor="White" FontSize="12"/>
                                         </Grid>
 

@@ -2,46 +2,69 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:TuAPP"
+             xmlns:admob="clr-namespace:Plugin.AdMob;assembly=Plugin.AdMob"
              x:Class="TuAPP.BoxingTimerPage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#09090B">
+    <Grid RowDefinitions="Auto, Auto, *, Auto" >
 
-    <Grid RowDefinitions="Auto, *, Auto" Padding="20,40,20,30">
+        <!-- Row 0: Banner solo, ancho completo -->
+        <admob:BannerAd 
+        Grid.Row="0"
+        AdUnitId="ca-app-pub-5227773888709145/3230532050"
+            AdSize="FullBanner"
+            HorizontalOptions="Fill"
+        Margin="0,0,0,2"
+        HeightRequest="60" />
 
-        <VerticalStackLayout Grid.Row="0" Spacing="15" HorizontalOptions="Center">
-            <!-- NUEVO: Título fijo en lugar de Picker -->
-            <Label Text="CRONÓMETRO" TextColor="White" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" CharacterSpacing="2"/>
-
+        <!-- Row 1: Header (antes era Row 0) -->
+        <VerticalStackLayout Grid.Row="1" Spacing="15" HorizontalOptions="Center">
+            <Label Text="CRONÓMETRO" TextColor="White" FontSize="26" 
+               FontAttributes="Bold" HorizontalOptions="Center" CharacterSpacing="2"/>
             <Grid ColumnDefinitions="*,*" ColumnSpacing="40" HorizontalOptions="Center">
                 <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
                     <Label Text="Ejercicio" TextColor="#A1A1AA" FontSize="12" HorizontalOptions="Center"/>
-                    <Label x:Name="LblWorkConfig" Text="03:00" TextColor="White" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    <Label x:Name="LblWorkConfig" Text="03:00" TextColor="White" 
+                       FontSize="16" FontAttributes="Bold" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
                     <Label Text="Descanso" TextColor="#A1A1AA" FontSize="12" HorizontalOptions="Center"/>
-                    <Label x:Name="LblRestConfig" Text="00:30" TextColor="White" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    <Label x:Name="LblRestConfig" Text="00:30" TextColor="White" 
+                       FontSize="16" FontAttributes="Bold" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Grid>
         </VerticalStackLayout>
 
-        <Grid Grid.Row="1" HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="320" HeightRequest="320">
+        <!-- Row 2: Cronómetro circular (antes era Row 1) -->
+        <Grid Grid.Row="2" HorizontalOptions="Center" VerticalOptions="Center" 
+          WidthRequest="320" HeightRequest="320">
             <GraphicsView x:Name="TimerGraphicsView" HorizontalOptions="Fill" VerticalOptions="Fill">
                 <GraphicsView.Drawable>
                     <local:CircularProgressDrawable x:Name="TimerDrawable" />
                 </GraphicsView.Drawable>
             </GraphicsView>
-
             <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="0">
-                <Label x:Name="LblStatusTop" Text="LISTO" TextColor="White" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,0,0,5"/>
-                <Label x:Name="LblTimer" Text="03:00" TextColor="White" FontSize="85" FontAttributes="Bold" HorizontalOptions="Center"/>
-                <Label x:Name="LblRound" Text="Ronda 1/8" TextColor="#A1A1AA" FontSize="16" HorizontalOptions="Center" Margin="0,5,0,0"/>
+                <Label x:Name="LblStatusTop" Text="LISTO" TextColor="White" FontSize="16" 
+                   FontAttributes="Bold" HorizontalOptions="Center" Margin="0,0,0,5"/>
+                <Label x:Name="LblTimer" Text="03:00" TextColor="White" FontSize="85" 
+                   FontAttributes="Bold" HorizontalOptions="Center"/>
+                <Label x:Name="LblRound" Text="Ronda 1/8" TextColor="#A1A1AA" FontSize="16" 
+                   HorizontalOptions="Center" Margin="0,5,0,0"/>
             </VerticalStackLayout>
         </Grid>
 
-        <Grid Grid.Row="2" ColumnDefinitions="Auto, Auto, Auto" HorizontalOptions="Center" ColumnSpacing="25" VerticalOptions="End">
-            <ImageButton Grid.Column="0" Source="ic_reset.png" Clicked="OnResetClicked" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="#18181B" Padding="15" VerticalOptions="Center"/>
-            <ImageButton Grid.Column="1" x:Name="BtnPlayPause" Source="ic_play.png" Clicked="OnPlayPauseClicked" WidthRequest="80" HeightRequest="80" CornerRadius="40" BackgroundColor="#18181B" Padding="25" VerticalOptions="Center"/>
-            <ImageButton Grid.Column="2" Source="ic_skip.png" Clicked="OnSkipClicked" WidthRequest="60" HeightRequest="60" CornerRadius="30" BackgroundColor="#18181B" Padding="15" VerticalOptions="Center"/>
+        <!-- Row 3: Botones (antes era Row 2) -->
+        <Grid Grid.Row="3" ColumnDefinitions="Auto, Auto, Auto" HorizontalOptions="Center" 
+          ColumnSpacing="25" VerticalOptions="End">
+            <ImageButton Grid.Column="0" Source="ic_reset.png" Clicked="OnResetClicked" 
+                     WidthRequest="60" HeightRequest="60" CornerRadius="30" 
+                     BackgroundColor="#18181B" Padding="15" VerticalOptions="Center"/>
+            <ImageButton Grid.Column="1" x:Name="BtnPlayPause" Source="ic_play.png" 
+                     Clicked="OnPlayPauseClicked" WidthRequest="80" HeightRequest="80" 
+                     CornerRadius="40" BackgroundColor="#18181B" Padding="25" VerticalOptions="Center"/>
+            <ImageButton Grid.Column="2" Source="ic_skip.png" Clicked="OnSkipClicked" 
+                     WidthRequest="60" HeightRequest="60" CornerRadius="30" 
+                     BackgroundColor="#18181B" Padding="15" VerticalOptions="Center"/>
         </Grid>
 
     </Grid>

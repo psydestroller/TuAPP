@@ -2,6 +2,9 @@ using TuAPP.Models;
 using TuAPP.Services;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using Plugin.AdMob;
+using Plugin.AdMob.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TuAPP;
 
@@ -15,13 +18,9 @@ public class SessionDisplayModel
     public string Intensity { get; set; } = string.Empty;
     public string Feeling { get; set; } = string.Empty;
     public string Notes { get; set; } = string.Empty;
-
     public string FocusArea { get; set; } = string.Empty;
-
-    // NUEVO: Variables para controlar la duración
     public string DurationDisplay { get; set; } = string.Empty;
     public int TotalSeconds { get; set; }
-
     public double PostWeight { get; set; }
 
     public bool IsBoxing => RoundsCompleted > 0;
@@ -37,10 +36,23 @@ public partial class DashboardPage : ContentPage
     private Guid? _editingSessionId = null;
     private WorkoutSession? _recentlyDeletedSession = null;
 
+    private IInterstitialAdService? _interstitialAdService;
+
     public DashboardPage()
     {
         InitializeComponent();
         ListGymSessions.ItemsSource = RecentSessions;
+    }
+
+    protected override void OnHandlerChanged()
+    {
+        base.OnHandlerChanged();
+
+        if (Handler?.MauiContext != null && _interstitialAdService == null)
+        {
+            _interstitialAdService = Handler.MauiContext.Services.GetService<IInterstitialAdService>();
+            _interstitialAdService?.PrepareAd("ca-app-pub-5227773888709145/5642690948");
+        }
     }
 
     protected override void OnAppearing()
@@ -64,13 +76,13 @@ public partial class DashboardPage : ContentPage
 
         LblCurrentWeight.Text = $"{profile.WeightKg:F1} kg";
         LblTargetWeight.Text = $"{fight.TargetWeightKg:F1} kg";
-        LblCurrentWeight.TextColor = (profile.WeightKg > fight.TargetWeightKg) ? Color.FromArgb("#EF4444") : Colors.White;
+        LblCurrentWeight.TextColor = (profile.WeightKg > fight.TargetWeightKg)
+            ? Color.FromArgb("#EF4444")
+            : Colors.White;
 
         RecentSessions.Clear();
 
-        var sortedHistory = history.OrderByDescending(s => s.Date).ToList();
-
-        foreach (var s in sortedHistory)
+        foreach (var s in history.OrderByDescending(s => s.Date))
         {
             RecentSessions.Add(new SessionDisplayModel
             {
@@ -92,18 +104,15 @@ public partial class DashboardPage : ContentPage
         LblEmptyHistory.IsVisible = RecentSessions.Count == 0;
     }
 
-    private string TranslateWorkoutType(WorkoutType type)
+    private string TranslateWorkoutType(WorkoutType type) => type switch
     {
-        return type switch
-        {
-            WorkoutType.ClassicBoxing => "Boxeo Clásico",
-            WorkoutType.HeavyBag => "Costal",
-            WorkoutType.Sparring => "Sparring",
-            WorkoutType.Shadow => "Sombra",
-            WorkoutType.Sprints => "Sprints / Cardio",
-            _ => "Entrenamiento Libre"
-        };
-    }
+        WorkoutType.ClassicBoxing => "Boxeo Clásico",
+        WorkoutType.HeavyBag => "Costal",
+        WorkoutType.Sparring => "Sparring",
+        WorkoutType.Shadow => "Sombra",
+        WorkoutType.Sprints => "Sprints / Cardio",
+        _ => "Entrenamiento Libre"
+    };
 
     private void OnToggleEditFight(object sender, EventArgs e)
     {
@@ -118,25 +127,19 @@ public partial class DashboardPage : ContentPage
 
     private void OnSaveFight(object sender, EventArgs e)
     {
-        if (double.TryParse(EntryTargetWeight.Text?.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double targetW) && targetW > 0)
+        if (double.TryParse(EntryTargetWeight.Text?.Replace(",", "."),
+                NumberStyles.Any, CultureInfo.InvariantCulture, out double targetW) && targetW > 0)
         {
             DateTime safeDate = DpFightDate.Date ?? DateTime.Today;
-
-            var fight = new FightEvent { Date = safeDate, TargetWeightKg = targetW };
-            StorageService.SaveFightEvent(fight);
-
+            StorageService.SaveFightEvent(new FightEvent { Date = safeDate, TargetWeightKg = targetW });
             LoadDashboardData();
             FormEditFight.IsVisible = false;
         }
     }
 
-    // =======================================================
-    // FUNCIONES INTELIGENTES PARA LAS 9 OPCIONES DE EQUIPO
-    // =======================================================
     private string GetSelectedFocusAreas()
     {
         var list = new List<string>();
-
         if (ChkFocusSparring.IsChecked) list.Add("Sparring");
         if (ChkFocusCostal.IsChecked) list.Add("Costal");
         if (ChkFocusManoplas.IsChecked) list.Add("Manoplas");
@@ -145,20 +148,15 @@ public partial class DashboardPage : ContentPage
         if (ChkFocusPeraLoca.IsChecked) list.Add("Pera loca");
         if (ChkFocusTecnica.IsChecked) list.Add("Técnica/Sombra");
         if (ChkFocusFisico.IsChecked) list.Add("Físico/Cardio");
-
         if (ChkFocusOtro.IsChecked && !string.IsNullOrWhiteSpace(EntryOtherFocus.Text))
-        {
             list.Add(EntryOtherFocus.Text.Trim());
-        }
 
-        if (list.Count == 0) return "General";
-        return string.Join(", ", list);
+        return list.Count == 0 ? "General" : string.Join(", ", list);
     }
 
     private void SetSelectedFocusAreas(string focusStr)
     {
-        if (string.IsNullOrEmpty(focusStr)) focusStr = "";
-
+        focusStr ??= "";
         var focuses = focusStr.Split(',').Select(f => f.Trim()).ToList();
 
         ChkFocusSparring.IsChecked = focuses.Contains("Sparring");
@@ -170,24 +168,16 @@ public partial class DashboardPage : ContentPage
         ChkFocusTecnica.IsChecked = focuses.Contains("Técnica/Sombra");
         ChkFocusFisico.IsChecked = focuses.Contains("Físico/Cardio");
 
-        var predefined = new List<string> { "Sparring", "Costal", "Manoplas", "Gobernadora", "Perilla", "Pera loca", "Técnica/Sombra", "Físico/Cardio", "General" };
-        var customFocuses = focuses.Where(f => !predefined.Contains(f) && !string.IsNullOrEmpty(f)).ToList();
+        var predefined = new HashSet<string>
+        {
+            "Sparring","Costal","Manoplas","Gobernadora","Perilla",
+            "Pera loca","Técnica/Sombra","Físico/Cardio","General"
+        };
+        var custom = focuses.Where(f => !predefined.Contains(f) && !string.IsNullOrEmpty(f)).ToList();
 
-        if (customFocuses.Any())
-        {
-            ChkFocusOtro.IsChecked = true;
-            EntryOtherFocus.Text = string.Join(", ", customFocuses);
-        }
-        else
-        {
-            ChkFocusOtro.IsChecked = false;
-            EntryOtherFocus.Text = string.Empty;
-        }
+        ChkFocusOtro.IsChecked = custom.Any();
+        EntryOtherFocus.Text = custom.Any() ? string.Join(", ", custom) : string.Empty;
     }
-
-    // =======================================================
-    // LOGICA DE AGREGAR Y EDITAR BITÁCORA
-    // =======================================================
 
     private void OnToggleAddJournal(object sender, EventArgs e)
     {
@@ -198,9 +188,8 @@ public partial class DashboardPage : ContentPage
         FormAddJournal.IsVisible = !FormAddJournal.IsVisible;
         if (FormAddJournal.IsVisible)
         {
+            DpSessionDate.Date = DateTime.Today; // <-- NUEVO: Por defecto poner la fecha de hoy
             PckIntensity.SelectedIndex = 1;
-
-            // Limpiar Checkboxes
             ChkFocusSparring.IsChecked = false;
             ChkFocusCostal.IsChecked = false;
             ChkFocusManoplas.IsChecked = false;
@@ -211,7 +200,6 @@ public partial class DashboardPage : ContentPage
             ChkFocusFisico.IsChecked = false;
             ChkFocusOtro.IsChecked = false;
             EntryOtherFocus.Text = string.Empty;
-
             EntryDuration.Text = string.Empty;
             EntryPostWeight.Text = string.Empty;
             EdtNotes.Text = string.Empty;
@@ -223,18 +211,17 @@ public partial class DashboardPage : ContentPage
         if (sender is Button btn && btn.CommandParameter is SessionDisplayModel model)
         {
             _editingSessionId = model.Id;
+            DpSessionDate.Date = model.Date; // <-- NUEVO: Cargar la fecha exacta que seleccionó al guardarlo
 
             PckIntensity.SelectedItem = model.Intensity;
-            EntryDuration.Text = model.TotalSeconds > 0 ? (model.TotalSeconds / 60).ToString() : "";
-
+            EntryDuration.Text = model.TotalSeconds > 0
+                ? (model.TotalSeconds / 60).ToString() : "";
             SetSelectedFocusAreas(model.FocusArea);
-
-            EntryPostWeight.Text = model.PostWeight > 0 ? model.PostWeight.ToString("0.##", CultureInfo.InvariantCulture) : "";
+            EntryPostWeight.Text = model.PostWeight > 0
+                ? model.PostWeight.ToString("0.##", CultureInfo.InvariantCulture) : "";
             EdtNotes.Text = model.Notes;
-
             LblJournalTitle.Text = "Editar Entrenamiento";
             BtnSaveJournal.Text = "Guardar Cambios";
-
             FormAddJournal.IsVisible = true;
         }
     }
@@ -243,29 +230,34 @@ public partial class DashboardPage : ContentPage
     {
         var history = StorageService.LoadWorkoutHistory() ?? new List<WorkoutSession>();
 
-        double.TryParse(EntryPostWeight.Text?.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double postW);
+        double.TryParse(EntryPostWeight.Text?.Replace(",", "."),
+            NumberStyles.Any, CultureInfo.InvariantCulture, out double postW);
         int.TryParse(EntryDuration.Text, out int durationMins);
-        int totalSecs = durationMins * 60; // Convertimos los minutos ingresados a segundos
+        int totalSecs = durationMins * 60;
+
+        // NUEVO: Extraemos la fecha de forma 100% segura
+        DateTime safeSessionDate = DpSessionDate.Date ?? DateTime.Today;
 
         if (_editingSessionId.HasValue)
         {
-            var existingSession = history.FirstOrDefault(x => x.Id == _editingSessionId.Value);
-            if (existingSession != null)
+            var existing = history.FirstOrDefault(x => x.Id == _editingSessionId.Value);
+            if (existing != null)
             {
-                existingSession.Intensity = PckIntensity.SelectedItem?.ToString() ?? "Media";
-                existingSession.TotalSeconds = totalSecs;
-                existingSession.FocusArea = GetSelectedFocusAreas();
-                existingSession.PostWeight = postW;
-                existingSession.Notes = EdtNotes.Text ?? string.Empty;
+                existing.Date = safeSessionDate; // <-- Corrección aplicada
+                existing.Intensity = PckIntensity.SelectedItem?.ToString() ?? "Media";
+                existing.TotalSeconds = totalSecs;
+                existing.FocusArea = GetSelectedFocusAreas();
+                existing.PostWeight = postW;
+                existing.Notes = EdtNotes.Text ?? string.Empty;
             }
             StorageService.SaveWorkoutHistory(history);
         }
         else
         {
-            var manualSession = new WorkoutSession
+            history.Add(new WorkoutSession
             {
                 Id = Guid.NewGuid(),
-                Date = DateTime.Now,
+                Date = safeSessionDate, // <-- Corrección aplicada
                 Type = WorkoutType.Other,
                 Intensity = PckIntensity.SelectedItem?.ToString() ?? "Media",
                 TotalSeconds = totalSecs,
@@ -275,20 +267,20 @@ public partial class DashboardPage : ContentPage
                 CaloriesBurned = 0,
                 RoundsCompleted = 0,
                 TotalRounds = 0
-            };
-
-            history.Add(manualSession);
+            });
             StorageService.SaveWorkoutHistory(history);
         }
 
         LoadDashboardData();
         FormAddJournal.IsVisible = false;
         _editingSessionId = null;
-    }
 
-    // =======================================================
-    // LOGICA DE ELIMINAR Y DESHACER (ESTILO TOAST)
-    // =======================================================
+        if (_interstitialAdService != null)
+        {
+            _interstitialAdService.ShowAd();
+            _interstitialAdService.PrepareAd("ca-app-pub-3940256099942544/1033173712");
+        }
+    }
 
     private async void OnDeleteSessionClicked(object sender, EventArgs e)
     {
@@ -300,16 +292,14 @@ public partial class DashboardPage : ContentPage
             if (itemToRemove != null)
             {
                 _recentlyDeletedSession = itemToRemove;
-
                 history.Remove(itemToRemove);
                 StorageService.SaveWorkoutHistory(history);
                 LoadDashboardData();
 
                 UndoPanel.IsVisible = true;
-
                 await Task.Delay(5000);
 
-                if (_recentlyDeletedSession != null && _recentlyDeletedSession.Id == itemToRemove.Id)
+                if (_recentlyDeletedSession?.Id == itemToRemove.Id)
                 {
                     UndoPanel.IsVisible = false;
                     _recentlyDeletedSession = null;
@@ -323,13 +313,10 @@ public partial class DashboardPage : ContentPage
         if (_recentlyDeletedSession != null)
         {
             var history = StorageService.LoadWorkoutHistory() ?? new List<WorkoutSession>();
-
             history.Add(_recentlyDeletedSession);
             StorageService.SaveWorkoutHistory(history);
-
             _recentlyDeletedSession = null;
             UndoPanel.IsVisible = false;
-
             LoadDashboardData();
         }
     }
